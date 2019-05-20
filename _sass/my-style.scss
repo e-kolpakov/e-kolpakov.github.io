@@ -8,4 +8,13 @@ $grey: rgba(68, 68, 68, 1);
 $deep-blue: rgba(18, 32, 61, 1);
 $black: rgba(20, 20, 20, 1);
 
+// Hydejack overrides
+.sidebar {
+  a {
+    color: $white;
+  }
+}
 
+.font-active {
+  background-color: $white;
+}
