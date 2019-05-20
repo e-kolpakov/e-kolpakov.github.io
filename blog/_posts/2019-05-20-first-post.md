@@ -1,3 +1,0 @@
-# First post
-
-Hello, world!
