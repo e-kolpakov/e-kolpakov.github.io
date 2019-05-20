@@ -14,7 +14,4 @@ description: >
 
 # You can show the description on the page by deleting this line:
 hide_description: true
-
-# TODO
-image: /assets/img/blog/hydejack-8.png
 ---
