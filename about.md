@@ -1,18 +1,20 @@
 ---
-layout: page
+# This page uses Hydejack's `about` layout, which shows the primary author's picture and about text at the top.
+# You can change it to the regular `page` layout if you want.
+layout: about
+
+# The title of the page.
 title: About
-permalink: /about/
+
+# Write a short (~150 characters) description of each blog post.
+# This description is used to preview the page on search engines, social media, etc.
+description: >
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+  sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+# You can show the description on the page by deleting this line:
+hide_description: true
+
+# TODO
+image: /assets/img/blog/hydejack-8.png
 ---
-
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
-
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
-
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
-
-
-[jekyll-organization]: https://github.com/jekyll
