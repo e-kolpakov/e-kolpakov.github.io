@@ -9,9 +9,11 @@ title: About
 # Write a short (~150 characters) description of each blog post.
 # This description is used to preview the page on search engines, social media, etc.
 description: >
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-  sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  Personal site and blog of Eugeny Kolpakov
 
 # You can show the description on the page by deleting this line:
 hide_description: true
+menu: true
 ---
+
+<!--author-->

@@ -1,7 +1,7 @@
 # The primary author of this blog.
 # Must be the same as `author` in `_config.yml`.
 # You can change `author1` to your shortname.
-author1:
+eugeny:
   # Replace <...> with your own (remove the < >)
   name:              Eugeny Kolpakov
   email:             eugeny.kolpakov@gmail.com
@@ -9,7 +9,7 @@ author1:
   # Used at the bottom of each page and at the top of the `about` layout
   # Markdown enabled, can use multiple paragraphs (enabled by `|`)
   about:             |
-    I'm a Lead Engineer at Redmart on the Capacity Management and Routing team.
+    I'm a Lead Software Engineer at Redmart on the Capacity Management and Routing team.
     My major interests are functional programming, building scalable, reliable and
     fault-tolerant systems, event sourcing and advanced testing techniques.
     I spend my free time with my wife and and two daughters playing board games,
