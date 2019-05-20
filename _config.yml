@@ -46,7 +46,7 @@ author:
 # Add links to the sidebar.
 menu:
   - title:             Blog
-    url:               /blog/
+    url:               /
   - title:             About
     url:               /about/
 
