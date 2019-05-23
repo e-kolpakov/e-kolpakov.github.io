@@ -3,10 +3,11 @@
 // Note: Not automatically used by hydejack; $grey is used in _config.yml as theme_color and accent_color
 $white: rgba(239, 239, 239, 1);
 $light-blue: rgba(191, 206, 239, 1);
-$blue: rgba(64, 83, 109, 1);
+$blue: rgba(81, 104, 135, 1);
 $grey: rgba(68, 68, 68, 1);
 $deep-blue: rgba(18, 32, 61, 1);
 $black: rgba(20, 20, 20, 1);
+$red: #a9261e;
 
 // Hydejack overrides
 .sidebar {
@@ -17,4 +18,23 @@ $black: rgba(20, 20, 20, 1);
 
 .font-active {
   background-color: $white;
+}
+
+h1.post-title {
+  a:not(.btn) {
+    color: $grey;
+  }
+}
+
+.author {
+  .sidebar-social {
+    a:not(.btn) {
+      color: $grey;
+    }
+  }
+}
+
+// custom styles
+.red {
+  color: $red
 }

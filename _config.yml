@@ -76,7 +76,7 @@ paginate_path:         /page-:num/
 
 # Sidebar image and theme color of the site.
 accent_image:          none
-accent_color:          rgba(68, 68, 68, 1)
+accent_color:          rgba(81, 104, 135, 1)
 
 # This is used for the `theme-color` meta tag,
 # which changes the background color of the browser UI in certain browsers.

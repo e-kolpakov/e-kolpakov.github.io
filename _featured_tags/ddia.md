@@ -8,6 +8,8 @@ title: Designing Data-Intense Applications
 # The name of the tag, used in a post's front matter (e.g. tags: [<slug>]).
 slug: books-ddia
 
+hide_description: true
+
 # (Optional) Write a short (~150 characters) description of this featured tag.
 description: >
   "Designing Data-Intense Applications" (ISBN: 978-1-449-37332-0) by Martin Kleppman is published by O'Reilly in 2017.
