@@ -107,12 +107,76 @@ Probably the most important conclusion is - choice of model depends a lot on the
 </div>
 
 [^1]: [IBM's IMS][ibm-ims] used document model and was first released in 1966.
-[^1]: Although ElasticSearch uses slightly different data structure called [Inverted Index][inv-idx], the data in the
-    index is represented by documents
 
 [ibm-ims]: https://en.wikipedia.org/wiki/IBM_Information_Management_System
 [inv-idx]: https://www.elastic.co/guide/en/elasticsearch/guide/current/inverted-index.html
 
 # Chapter 3: Storage and Retrieval
+
+Next up, the topic of data storage and retrieval. This chapter it touches on three significantly
+different aspects of persistence mechanisms: 
+* the underlying mechanism - update-in-place vs. log-structured
+* the intended use case - transactional vs. analytical
+* "direction" of the data - row-oriented vs. column-oriented
+
+## Update-in-place vs. log-structured
+
+**Update-in-place** can be considered a "classical" model - as it is what powers the "traditional" relational databases. 
+In this case, an update to the record causes the bytes on the disk/memory to be overwritten in-place (provided that 
+record size has not increased - otherwise it is moved) and index contents updated as necessary.
+
+Most of the persistence engines using this approach utilize the combination of page-oriented disk storage and B-tree 
+index. Alternatively, some projects (Redis, Memcached, etc.) aim to keep the entirety of the data in-memory, which 
+makes B-trees less efficient than other types of indexes (e.g. simple hash map).
+
+**Log-stuctured** persistence engines demonstrate a completely different approach - no existing record is ever updated
+or erased - only new ones are appended. Update is modelled as writing a new version of the record using the same 
+key; delete - as writing a special kind of record (frequently called "tombstone"). It is than responsibility
+of read mechanisms to recognize the tombstones and ignore the "old versions" of records. 
+
+In order to reclaim the disk/memory space consumed, _compaction_ operation is periodically performed, that removes 
+the old "versions" of the same record as well as deleted records.
+
+One of the more popular data structures used in log-structured DBs is Log-structured Merge Tree (aka LSM-tree). The core 
+building block of LSM is a sorted string table (aka SSTable) - essentially a table of records stored on disk/in memory
+sorted by the key. LSM is essentially an ordered collection of SSTables (also called _segments_ - that is each segment 
+is an SSTable) plus an in-memory data structure to support fast writes maintaining sorted order (e.g. red-black tree) 
+called _memtable_. To support deletes, an auxiliary data structure to keep deleted keys is often employed 
+(e.g. [Bloom filter][bloom-filter]) 
+
+[bloom-filter]: https://hackernoon.com/probabilistic-data-structures-bloom-filter-5374112a7832
+
+## OLTP vs OLAP
+
+**Transactional systems** (aka OLTP - on-line transactional processing) see high rates of requests (usually 
+customer-facing) with aggressive response time requirements, but each request touches a small number of records.
+
+**Analytical systems** (aka OLAP - on-line analytical processing) usually has much lower rate of requests and much higher 
+response time allowance (since they originate from data analyst), but each request touches most or even all records.
+ 
+Due to these differences, underlying storage mechanisms between the two are also different - OLAP systems gravitate 
+heavily towards column-oriented storage, while row-oriented suits OLTP use case more.
+
+## Row-oriented vs. column-oriented
+
+Since row-oriented storage is more mainstream, most of the row- vs. column-oriented dichotomy is described in terms of
+particulars of column-oriented storage. The underlying idea is simple - quite often analytical queries need to touch 
+only a few columns on an otherwise big record, so it is beneficial to physically store the data in a way that single 
+column can be read from disk sequentially.
+
+Column-oriented storage enables a few nice tricks to be implemented, such as column compression (using bitmap or 
+runlength encoding) or vectorized processing (SIMD and/or tight loops on data in L1 cache)
+
+{::options parse_block_html="true" /}
+<div class="message">
+**Chapter highlights:**
+* Update-in-place with B-trees - golden standard. Even though it is not a novel technology, it evolved to support 
+    multitude of use cases well.
+* Log-structured and LSM-Trees are recently more popular with new developments, but overall less mature. Compared to 
+    B-trees, works better with write-heavy payloads (e.g. eventsourcing), but not as good for read-heavy.
+* Deep dive into B-tree, SSTable and LSM-Tree inner workings.
+* OLTP and OLAP use cases call for different DB designs.
+* Column-oriented storage is likely more efficient for OLAP payloads.
+</div>
 
 # Chapter 4: Encoding and Evolution
