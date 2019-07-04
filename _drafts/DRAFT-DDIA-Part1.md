@@ -102,7 +102,7 @@ Probably the most important conclusion is - choice of model depends a lot on the
 **Chapter highlights:**
 * Good model choice heavily depends on the relations between objects in the application
 * Relational and document convergence - many relational DBs add "document" features, such as XML or JSON support.
-* Schema-or-read (aka schemaless) in document DBs vs. schema-on-write in relational.
+* Schema-on-read (aka schemaless) in document DBs vs. schema-on-write in relational.
 * Graph query languages - declarative with pattern matching
 </div>
 
@@ -113,7 +113,7 @@ Probably the most important conclusion is - choice of model depends a lot on the
 
 # Chapter 3: Storage and Retrieval
 
-Next up, the topic of data storage and retrieval. This chapter it touches on three significantly
+Next up, the topic of data storage and retrieval. This chapter touches on three significantly
 different aspects of persistence mechanisms: 
 * the underlying mechanism - update-in-place vs. log-structured
 * the intended use case - transactional vs. analytical

@@ -13,7 +13,7 @@ slug: books
 Summary of books I've read - mostly for my own future reference.
 
 All books are intellectual property of their respective authors and/or publishers. Thoughts and opinions expressed
-are my own, and might not correlate with the book's author's.
+are my own, and might not correlate with the ones expressed in the book.
  
 **Note:** these are obviously opinionated - albeit I've tried to mark my opinions at the time of writing, to 
 later distinguish them from what was in the book.
