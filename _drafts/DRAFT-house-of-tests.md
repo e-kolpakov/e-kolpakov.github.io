@@ -34,13 +34,15 @@ and the latter - "integration" tests.
 
 ## Zero-floor building (aka no building at all)
 
+![Tent](/assets/img/2019-11-12-house-of-tests/tent.jpg){:.image.inline-text-wrap.right}
+
 Sometimes you really don't want to bother building a house - a temporary accomodation will work just as good. Think of
 a camping site - even though you need to have some roof over your head, you won't build a house - more likely to place 
 a tent or something similar.
 
 In software world, the analogy of a camping site is an one-time, an infrequently used or a very small software. In such 
 cases, investing into test infrastructure is quite often not justified - the task can be completed faster and with 
-acceptable quality without it.
+_acceptable quality_[^1] without it.
 
 Other notable use case in this category is testing Infrastructure as Code. A good test should execute "code under test",
 and for IaC executing essentially means creating all that infrastructure and running certain assertions against it. 
@@ -48,12 +50,20 @@ This inevitably poses multiple challenges:
 
 * there needs to be some isolated environment where that infrastructure would be provisioned
 * it almost inevitably incurs costs, sometimes significant costs
+* it's hard to come up with non-tautological assertions. Example of tautology: check that [aws_instance][aws-instance] 
+  creates an AWS EC2 instance.
+* ... and so on
 
-So, for smaller organizations it quite often makes sense to keep the IaC code at "no tests" level, especially when the 
-infrastructure is still small and can be comprehended easily.
+Because of that for smaller organizations it quite often makes sense to keep the IaC code at "no tests" level, 
+especially when the infrastructure is still small and can be comprehended easily.
 
 **Pros:** fastest to achieve - there's literally nothing to do
 **Cons:** everything else
+
+[aws-instance]: https://www.terraform.io/docs/providers/aws/r/instance.html
+
+[^1]: That is, something that is acceptable short-term and someone will rectify the issues/tech debt if this piece of 
+software suddenly becomes very important or long-living. 
 
 ## Single floor landed house (aka bungalow, aka cottage)
 

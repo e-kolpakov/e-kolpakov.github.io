@@ -18,3 +18,16 @@ $black: rgba(20, 20, 20, 1);
 .font-active {
   background-color: $white;
 }
+
+.image {
+  &.inline-text-wrap {
+    width: 14rem;
+    margin: 0rem 1rem 1rem 1rem;
+    &.right {
+      float: right;
+    }
+    &.left {
+      float: left;
+    }
+  }
+}
