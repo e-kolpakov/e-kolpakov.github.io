@@ -1,29 +1,69 @@
 ---
 layout: post
-title: A house of testing techniques
+title: A guide to build a house of tests
 tags: [testing]
 ---
 
-# Overview
+There is a well-known and widespread unit/integration/function/end-to-end taxonomy of tests that describe _what_ is 
+tested - single program component, single service or an entire solution. There is also a less known taxonomy of _how_
+testing is performed - from not having tests at all to the current golden standard of "single method - single test 
+case" to a more advanced techniques - I sometimes call it "levels" or "floors" of testing, as they build upon each 
+other. Interestingly, "buildings" of all levels deserve to exist as each "floor" has its pros and cons - taller 
+"buildings" are generally harder to build and maintain - so choosing the right "height" is important for long-term 
+success.
 
-Testing became a must-have part of the software development cycle .
+# A guide to build a house of tests
 
-Layers: unit/integration/end-to-end
-Levels: complexity/sophistication of test setup
- 
-Layers and levels are orthogonal - one can have data-driven unit tests and classical end-to-end tests; in fact, the
-higher the layer, the harder it is to use "high" levels. 
+Ok, so let's agree on some terminology first.
 
-# Ground level: "Normal" tests using some testing framework 
+Let's call layers of the [Test Pyramid][test-pydamid] **"layers"** - these describe _what_ is tested - a single class, 
+a system, an ecosystem of microservices, or an entire application/solution.
 
-When we speak about testing, by default we mean this level. Even though historically testing started "one level below",
-this become the default - tests are written and executed using some 3rd party testing framework, such as JUnit,
+Let's call different approaches and techniques to testing **"floors"** - these describe _how_ testing is performed -
+specifically, how tests are created, executed and reported on.
+
+**Layers** and *floors* are orthogonal - in fact, the higher the **layer**, the harder it is to use "high" *floors*.
+For example, one can have *property-based* **unit tests** supported by *"standard"* **integration tests**.
+
+[test-pyramid]: https://www.google.com.sg/search?q=software+test+pyramid&tbm=isch
+
+> NB: "integration testing" term is a bit overloaded - especially in the space of microservices architectures. There's
+an _inter_service integration tests, that verify how different services interact with each other; and _intra_service
+tests that usually verify how the service behaves as a whole. To disambiguate, I'll call the former "functional" tests,
+and the latter - "integration" tests.
+
+## Zero-floor building (aka no building at all)
+
+Sometimes you really don't want to bother building a house - a temporary accomodation will work just as good. Think of
+a camping site - even though you need to have some roof over your head, you won't build a house - more likely to place 
+a tent or something similar.
+
+In software world, the analogy of a camping site is an one-time, an infrequently used or a very small software. In such 
+cases, investing into test infrastructure is quite often not justified - the task can be completed faster and with 
+acceptable quality without it.
+
+Other notable use case in this category is testing Infrastructure as Code. A good test should execute "code under test",
+and for IaC executing essentially means creating all that infrastructure and running certain assertions against it. 
+This inevitably poses multiple challenges:
+
+* there needs to be some isolated environment where that infrastructure would be provisioned
+* it almost inevitably incurs costs, sometimes significant costs
+
+So, for smaller organizations it quite often makes sense to keep the IaC code at "no tests" level, especially when the 
+infrastructure is still small and can be comprehended easily.
+
+**Pros:** fastest to achieve - there's literally nothing to do
+**Cons:** everything else
+
+## Single floor landed house (aka bungalow, aka cottage)
+
+When we speak about testing, by default we mean this level. Even though historically testing started one level below,
+this has become the default - tests are written and executed using some 3rd party testing framework, such as JUnit,
 `unittest`, `specs`, etc.
-
 
 Let's go to the basement first.
 
-# Basement 1: Separate entrypoint
+### Detour: a cabin
 
 A module under test exposes a separate entrypoint - a dedicated method or special combination of input parameters - 
 that triggers module's self check using language's built-in assertion mechanisms, such as `assert` statements.
@@ -88,4 +128,4 @@ would evaluate the program under all possible use scenarios - again theoreticall
 Pick the right level - the higher you go, the more upfront investment and more senior team is needed, but benefits are
 numerous. Generator-driven tests can even uncover failures one wouldn't even think about - e.g. built-in string 
 generator spits entire range of unicode characters, including higher panes of unicode, non-printable characters and 
-other weird stuff.
+other weird stuff.2
