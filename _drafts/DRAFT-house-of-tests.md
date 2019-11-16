@@ -266,7 +266,7 @@ we programmers hate) and (2) much more creative and expressive (which we love).
 Most of the mainstream test frameworks either provide parameterized tests feature (e.g. [JUnit][junit-parameterized], 
 [NUnit][nunit-parameterized], [Boost.Test][boost-test]), have 3rd-party plugin libraries that provide that feature 
 (e.g. python [ddt][ddt], [scalacheck][scalacheck-table-driven]) or can leverage on existing language features (e.g. 
-[go][go-parameterized], Scala).
+[go][go-parameterized], Scala, Ruby).
 
 So, here's our test suite extended to use data-driven test ([full listing][example-ddt]):
 
@@ -294,7 +294,7 @@ class TestAgeAt(unittest.TestCase):
 ```
 
 This style makes it really easy to add more cases if necessary, so handling multiple "normal" cases and edge cases 
-becomes trivial. This testing style literally forces to think of edge cases and applicability limits. 
+becomes trivial. This testing style literally forces to think of edge cases and applicability limits.
 
 One caveat is that handling different behaviors (e.g. normal output vs. exception) still better be done via adding more
 test methods. While sometimes it might make sense to have one data-driven test that covers entire range of behaviors of
@@ -302,14 +302,37 @@ code under test, this usually can only be done via loops or conditional inside t
 test body is usually discouraged. If you weren't _yet_ bit by the complex logic in the tests - just trust me, I've been
 there and myself guilty of that crime.
 
+One thing to emphasize - there's a significant difference between data-driven test and "classical" test method that 
+does multiple assertions passing different inputs to the code under test. The difference is that "classical" code will
+fail on the first error/failure, while data-driven test will still execute all of cases - which limits the information
+available to the developer. Simply put:
+
+```python
+def bad_reciprocal(arg): return 1 / arg
+
+@ddt.ddt
+class TestFoo(unittest.TestCase):
+    # GOOD - shows three tests, only one of which fails
+    @ddt.unpack
+    @ddt.data((0, 1), (1, 1), (2, 0.5))
+    def test_add_one(self, arg, expected_output): 
+        self.assertEqual(bad_reciprocal(arg), expected_output)
+    
+    # BAD
+    def test_add_one_bad(self):
+        self.assertEqual(bad_reciprocal(0), 1)  # fails here and does not execute other cases
+        self.assertEqual(bad_reciprocal(1), 1)
+        self.assertEqual(bad_reciprocal(2), 0.5)
+```  
+
 **Building to this level:** effort is quite different between if you're building a new test suite and decide to go to 
   this level straight away, or re-building an existing codebase - I'd actually suggest to let the existing test live as
   they are, and only gradually migrate when changing actual code. In any case, building to this level requires a small,
   but sensible shift in thinking - one should start thinking of code under test _explicitly_ in terms of inputs, 
-  outputs, behaviors and invariants.\\ 
+  outputs, behaviors and invariants.\\
 **Pros:** Much less tedious and more creative, "forces" to think about applicability limits and edge cases.\\
-**Cons:** Some test frameworks/languages requires additional dependencies (albeit those dependencies are usually 
-  lightweight); somewhat incentivize complex tests that has logic in them; requires some change in thinking.\\
+**Cons:** Some test frameworks/languages require additional dependencies (albeit those dependencies are usually 
+  lightweight); somewhat incentivizes complex tests that has logic in them; requires some change in thinking.\\
 **Should I get here:** I would strongly recommend - data-driven tests are a very useful tool that _multiplies_ 
   developer productivity in writing tests, while also improving the quality of test suite (i.e. better coverage, 
   easier to read&understand, etc.) 
