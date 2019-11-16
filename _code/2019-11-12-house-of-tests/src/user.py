@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
+
 @dataclass
 class User:
     id: int
@@ -12,12 +13,15 @@ class User:
         assert(isinstance(other, User))
         return self.date_of_birth <= other.date_of_birth
 
+
 def age_at(user: User, date: date) -> int:
     return max(relativedelta(date, user.date_of_birth).years, 0)
+
 
 class UserRepository:
     def get(self, id: int) -> User: pass
     def save(self, user: User) -> None: pass
+
 
 class UserService:
     def __init__(self, user_repo: UserRepository):

@@ -2,6 +2,7 @@
 layout: post
 title: A guide to build a house of tests
 tags: [testing]
+github_link_base: https://github.com/e-kolpakov/e-kolpakov.github.io/tree/testing/_code/2019-11-12-house-of-tests
 ---
 
 There is a well-known and widespread unit/integration/function/end-to-end taxonomy of tests that describe _what_ is 
@@ -47,9 +48,9 @@ but three examples:
 For brewity, I'll use only small subset of the examples in the post text, and full examples can be found at 
 [GitHub][examples]
 
-[examples]: 
+[examples]: {{ page.github_link_base }}
 
-Here we go:
+Here's the code under test:
 
 ~~~python
 from dataclasses import dataclass
@@ -114,7 +115,7 @@ This inevitably poses multiple challenges:
 Because of that for smaller organizations it quite often makes sense to keep the IaC code at "no tests" level, 
 especially when the infrastructure is still small and can be comprehended easily.
 
-**Building to this level:** a conscious decision to not write any tests.\\
+**Building to this level:** a conscious decision to not _"waste"_ time on testing.\\
 **Pros:** fastest to achieve - there's literally nothing to do.\\
 **Cons:** everything else.\\
 **Should I get here:** proooobably not, unless you know what you're doing, and why,\\
@@ -131,36 +132,21 @@ especially when the infrastructure is still small and can be comprehended easily
 When we speak about testing, by default we mean this - tests are written and executed using some 3rd party testing 
 framework, such as JUnit (and friends/clones/forks), `unittest`, `specs`, etc.
 
-Long story short, our test suite will look like this
+Long story short, our test suite will look like this ([full listing][example-standard]):
+
+[example-standard]: {{ page.github_link_base }}/test/test_user.py
 
 ~~~python
-import unittest
-from unittest.mock import Mock
-from dateutil import parser
-from user.user import User, UserRepository, UserService, age_at
-
 class Users:
     jack = User(1, "jack", parser.parse("1999-01-01"))
     jill = User(2, "Jill", parser.parse("2001-06-14"))
     jane = User(3, "Jane", parser.parse("2003-01-01"))
 
-# For convenience of display, I've put all test suites into single "file"
-# In real project there will probably be a dedicated file per suite
-class TestUser(unittest.TestCase):
-    def test_is_older_older(self):
-        self.assertTrue(Users.jack.is_older(Users.jill))
-
-    def test_is_older_younger(self):
-        self.assertFalse(Users.jane.is_older(Users.jill))
-
 class TestAgeAt(unittest.TestCase):
     def test_age_at_birth(self):
         self.assertEqual(age_at(Users.jack, Users.jack.date_of_birth), 0)
 
-    def test_age_at_some_random_dates_after_birth(self):
-        # should be separate test cases, but for compactness I'll put them together
-        self.assertEqual(age_at(Users.jack, parser.parse("2012-06-03")), 13)
-        self.assertEqual(age_at(Users.jack, parser.parse("1999-03-24")), 0)
+    def test_age_at_some_random_date_after_birth(self):
         self.assertEqual(age_at(Users.jill, parser.parse("2019-11-11")), 18)
 
     def test_age_at_16th_birthday(self):
@@ -169,37 +155,13 @@ class TestAgeAt(unittest.TestCase):
     def test_age_before_born(self):
         self.assertEqual(age_at(Users.jack, parser.parse("1990-01-01")), 0)
 
-
-class UserServiceTest(unittest.TestCase):
-    def setUp(self):
-        self._repo = Mock(spec=UserRepository)
-        self._service = UserService(self._repo)
-
-    def test_get_user(self):
-        self._repo.get.return_value = Users.jack
-        returned = self._service.read_user(Users.jack.id)
-        self._repo.get.assert_called_once_with(Users.jack.id)
-        self.assertEqual(returned, Users.jack)
-
-    def test_update_user_name(self):
-        self._repo.get.return_value = Users.jack
-        new_name = "Captain Jack Sparrow"
-
-        self._service.update_user_name(Users.jack.id, new_name)
-
-        expected_saved_user = User(Users.jack.id, new_name, Users.jack.date_of_birth)
-        self._repo.save.assert_called_once()
-        # call_args[0][0] is the first positional argument of the call
-        updated_user = self._repo.save.call_args[0][0]
-        # note: dataclass generates __eq__ that checks all fields
-        self.assertEqual(updated_user, expected_saved_user)
-
 if __name__ == '__main__':
     unittest.main()
 ~~~
 {:.long-code}
 
-Pretty straightforward and unsurprising (except maybe the `unittest.mock` peculiarities), right?
+Pretty straightforward and unsurprising, right? The main thing here is that we have each test case represented by a 
+dedicated method.
 
 **Building to this level:** Getting here requires some effort - how much exactly varies between languages, frameworks 
 and build tools - for the majority of them it's just following the convention/setting up the required configuration.\\
@@ -224,17 +186,56 @@ of input parameters - that triggers module's self check using language's built-i
 `assert` statements. This approach can even be stretched to cover "integration test" cases - just provide a separate 
 `Main` class, or pass an environment variable.
 
+Example:
+
+```python
+# ints.py
+def multiply(i1: int, i2: int) -> int:
+    return i1 * i2
+
+
+def self_test():
+    assert(multiply(1, 2) == 2)
+    assert(multiply(3, 4) == 12)
+    print("Tests passed")
+
+# executing tests:
+import ints
+ints.self_test()
+```
+
 This seems hacky (and indeed it is), as the test code is shipped with the production code, but it is less of a problem
 here, as test code doesn't add any dependencies and require no installation actions. Moreover, some languages have 
 certain level of support for this "feature" - e.g. python has [doctest][doctest] module that allows writing and running
-tests in the documentation strings. 
+tests in the documentation strings.
+
+```python
+def reverse_string(input: str) -> str:
+    """
+    This is a docstring  to illustrate doctests
+
+    >>> reverse_string("Hello!")
+    '!olleH'
+    >>> reverse_string("")
+    ''
+    >>> reverse_string('Привет!')
+    '!тевирП'
+    """
+    return input[::-1]
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
+```
 
 **Building to this level:** the effort required here is significantly less than proper test infrastructure would need - 
   you just use the built-in language features for everything that test framework does - from test discovery to 
-  assertions\\
-**Pros:** does not need extra tools and fast to implement (good choice for coding interviews)\\
-**Cons:** test code is shipped with "production" code.\\
-**Should I get here:** Not really, unless you've overgrown the tent, but still can't afford a proper place
+  assertions.\\
+**Pros:** does not need extra tools and fast to implement (good choice for coding interviews).\\
+**Cons:** test code is shipped with "production" code, limited to built-in assertions and language features, not well
+  suited for large codebases and test suites.\\
+**Should I get here:** Not really, unless you've overgrown the tent, but still can't afford a proper place.
 
 [doctest]: https://docs.python.org/3.8/library/doctest.html
 
