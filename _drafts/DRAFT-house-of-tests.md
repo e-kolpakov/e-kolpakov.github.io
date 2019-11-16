@@ -23,18 +23,70 @@ Let's call different approaches and techniques to testing **"floors"** - these d
 specifically, how tests are created, executed and reported on.
 
 **Layers** and *floors* are orthogonal - in fact, the higher the **layer**, the harder it is to use "high" *floors*.
-For example, one can have *property-based* **unit tests** supported by *"standard"* **integration tests**.
+For example, one can have *property-based* **unit tests** supported by *standard* **integration tests**.
 
 [test-pyramid]: https://www.google.com.sg/search?q=software+test+pyramid&tbm=isch
 
-> NB: "integration testing" term is a bit overloaded - especially in the space of microservices architectures. There's
-an _inter_service integration tests, that verify how different services interact with each other; and _intra_service
+NB: "integration testing" term is a bit overloaded - especially in the space of microservices architectures. There's
+an *inter*service integration tests, that verify how different services interact with each other; and *intra*service
 tests that usually verify how the service behaves as a whole. To disambiguate, I'll call the former "functional" tests,
 and the latter - "integration" tests.
+{:.message}
+
+## What do we test, exactly?
+
+To be more specific, let's write some code to be tested. One quite common shortsight of many tutorials, how-tos and
+manuals is to pick a very simple use case to avoid unnecessary complexity and focus attention on the topic itself. 
+However, it is than quite challenging to translate it to a more complex situations of real life. So, I'll use not one, 
+but three examples:
+
+1. A function without any side-effects (aka pure function)
+2. A method on a class that takes a parameter
+3. A class with a dependency.
+
+Here we go:
+
+~~~python
+from dataclasses import dataclass
+from datetime import date
+from dateutil.relativedelta import relativedelta
+
+@dataclass
+class User:
+    id: int
+    name: str
+    date_of_birth: date
+
+    def is_older(self, other) -> bool:
+        assert(isinstance(other, User))
+        return self.date_of_birth <= other.date_of_birth
+
+def age_at(user: User, date: date) -> int:
+    return max(relativedelta(date, user.date_of_birth).years, 0)
+
+class UserRepository:
+    def get(self, id: int) -> User: pass
+    def save(self, user: User) -> None: pass
+
+class UserService:
+    def __init__(self, user_repo: UserRepository):
+        self._repo = user_repo
+
+    def read_user(self, id: int) -> User:
+        return self._repo.get(id)
+
+    def update_user_name(self, id: int, new_name: str):
+        old_record = self._repo.get(id)
+        old_record.name = new_name
+        self._repo.save(old_record)
+~~~
+
+This is not a TDD session, so we're **not** going to evolve this code - it's already doing what it is supposed to and
+doing it right (I've tested that!)
 
 ## Zero-floor building (aka no building at all)
 
-![Tent](/assets/img/2019-11-12-house-of-tests/tent.jpg){:.image.inline-text-wrap.right}
+![](/assets/img/2019-11-12-house-of-tests/tent.jpg){:.image.inline-text-wrap.right}
 
 Sometimes you really don't want to bother building a house - a temporary accomodation will work just as good. Think of
 a camping site - even though you need to have some roof over your head, you won't build a house - more likely to place 
@@ -57,31 +109,129 @@ This inevitably poses multiple challenges:
 Because of that for smaller organizations it quite often makes sense to keep the IaC code at "no tests" level, 
 especially when the infrastructure is still small and can be comprehended easily.
 
-**Pros:** fastest to achieve - there's literally nothing to do
-**Cons:** everything else
+**Building to this level:** a conscious decision to not write any tests.\\
+**Pros:** fastest to achieve - there's literally nothing to do.\\
+**Cons:** everything else.\\
+**Should I get here:** proooobably not, unless you know what you're doing, and why,\\
 
 [aws-instance]: https://www.terraform.io/docs/providers/aws/r/instance.html
 
 [^1]: That is, something that is acceptable short-term and someone will rectify the issues/tech debt if this piece of 
-software suddenly becomes very important or long-living. 
+    software suddenly becomes very important or long-living. 
 
 ## Single floor landed house (aka bungalow, aka cottage)
 
-When we speak about testing, by default we mean this level. Even though historically testing started one level below,
-this has become the default - tests are written and executed using some 3rd party testing framework, such as JUnit,
-`unittest`, `specs`, etc.
+![](/assets/img/2019-11-12-house-of-tests/bungalow.jpg){:.image.inline-text-wrap.right}
 
-Let's go to the basement first.
+When we speak about testing, by default we mean this - tests are written and executed using some 3rd party testing 
+framework, such as JUnit (and friends/clones/forks), `unittest`, `specs`, etc.
+
+Long story short, our test suite will look like this
+
+~~~python
+import unittest
+from unittest.mock import Mock
+from dateutil import parser
+from user.user import User, UserRepository, UserService, age_at
+
+class Users:
+    jack = User(1, "jack", parser.parse("1999-01-01"))
+    jill = User(2, "Jill", parser.parse("2001-06-14"))
+    jane = User(3, "Jane", parser.parse("2003-01-01"))
+
+# For convenience of display, I've put all test suites into single "file"
+# In real project there will probably be a dedicated file per suite
+class TestUser(unittest.TestCase):
+    def test_is_older_older(self):
+        self.assertTrue(Users.jack.is_older(Users.jill))
+
+    def test_is_older_younger(self):
+        self.assertFalse(Users.jane.is_older(Users.jill))
+
+class TestAgeAt(unittest.TestCase):
+    def test_age_at_birth(self):
+        self.assertEqual(age_at(Users.jack, Users.jack.date_of_birth), 0)
+
+    def test_age_at_some_random_dates_after_birth(self):
+        # should be separate test cases, but for compactness I'll put them together
+        self.assertEqual(age_at(Users.jack, parser.parse("2012-06-03")), 13)
+        self.assertEqual(age_at(Users.jack, parser.parse("1999-03-24")), 0)
+        self.assertEqual(age_at(Users.jill, parser.parse("2019-11-11")), 18)
+
+    def test_age_at_16th_birthday(self):
+        self.assertEqual(age_at(Users.jack, parser.parse("2015-01-01")), 16)
+
+    def test_age_before_born(self):
+        self.assertEqual(age_at(Users.jack, parser.parse("1990-01-01")), 0)
+
+
+class UserServiceTest(unittest.TestCase):
+    def setUp(self):
+        self._repo = Mock(spec=UserRepository)
+        self._service = UserService(self._repo)
+
+    def test_get_user(self):
+        self._repo.get.return_value = Users.jack
+        returned = self._service.read_user(Users.jack.id)
+        self._repo.get.assert_called_once_with(Users.jack.id)
+        self.assertEqual(returned, Users.jack)
+
+    def test_update_user_name(self):
+        self._repo.get.return_value = Users.jack
+        new_name = "Captain Jack Sparrow"
+
+        self._service.update_user_name(Users.jack.id, new_name)
+
+        expected_saved_user = User(Users.jack.id, new_name, Users.jack.date_of_birth)
+        self._repo.save.assert_called_once()
+        # call_args[0][0] is the first positional argument of the call
+        updated_user = self._repo.save.call_args[0][0]
+        # note: dataclass generates __eq__ that checks all fields
+        self.assertEqual(updated_user, expected_saved_user)
+
+if __name__ == '__main__':
+    unittest.main()
+~~~
+{:.long-code}
+
+Pretty straightforward and unsurprising (except maybe the `unittest.mock` peculiarities), right?
+
+**Building to this level:** Getting here requires some effort - how much exactly varies between languages, frameworks 
+and build tools - for the majority of them it's just following the convention/setting up the required configuration.\\
+**Pros:** I won't delve too deep into describing the advantages of actually having some automatic tests as they are very 
+well known, but in short it makes capturing errors earlier, increases developer productivity and gives confidence in the 
+software we build.\\
+**Cons:** Major disavantage that actually gives raise to the next "level" is tediousness: single test case is a single 
+method.\\
+**Should I get here:** Absolutely, unless you're happy in a tent.
+  
+[pytest]: https://docs.pytest.org/en/latest
+[rspec]: https://rspec.info/
+[scalatest]: http://www.scalatest.org/
 
 ### Detour: a cabin
 
-A module under test exposes a separate entrypoint - a dedicated method or special combination of input parameters - 
-that triggers module's self check using language's built-in assertion mechanisms, such as `assert` statements.
+![](/assets/img/2019-11-12-house-of-tests/cabin.jpg){:.image.inline-text-wrap.right}
 
-This can be stretched to entire programs - just provide a separate `Main` class, or pass environment variable.  
+One other interesting approach is to save a bit on the setting up the test infra, and just use the built-in language 
+features. In such case, the module under test exposes a separate entrypoint - a dedicated method or special combination 
+of input parameters - that triggers module's self check using language's built-in assertion mechanisms, such as 
+`assert` statements. This approach can even be stretched to cover "integration test" cases - just provide a separate 
+`Main` class, or pass an environment variable.
 
-Pros: does not need extra tools; fast to implement (good choice for coding interviews); better than nothing
-Cons: test code is shipped with "production" code; hard to validate edge cases;
+This seems hacky (and indeed it is), as the test code is shipped with the production code, but it is less of a problem
+here, as test code doesn't add any dependencies and require no installation actions. Moreover, some languages have 
+certain level of support for this "feature" - e.g. python has [doctest][doctest] module that allows writing and running
+tests in the documentation strings. 
+
+**Building to this level:** the effort required here is significantly less than proper test infrastructure would need - 
+  you just use the built-in language features for everything that test framework does - from test discovery to 
+  assertions\\
+**Pros:** does not need extra tools and fast to implement (good choice for coding interviews)\\
+**Cons:** test code is shipped with "production" code.\\
+**Should I get here:** Not really, unless you've overgrown the tent, but still can't afford a proper place
+
+[doctest]: https://docs.python.org/3.8/library/doctest.html
 
 # Basement 2: No tests
 
@@ -138,4 +288,4 @@ would evaluate the program under all possible use scenarios - again theoreticall
 Pick the right level - the higher you go, the more upfront investment and more senior team is needed, but benefits are
 numerous. Generator-driven tests can even uncover failures one wouldn't even think about - e.g. built-in string 
 generator spits entire range of unicode characters, including higher panes of unicode, non-printable characters and 
-other weird stuff.2
+other weird stuff.

@@ -31,3 +31,11 @@ $black: rgba(20, 20, 20, 1);
     }
   }
 }
+
+.long-code {
+    .highlight {
+        overflow-y: scroll;
+        overflow-x: hidden;
+        max-height: 30rem;
+    }
+}
