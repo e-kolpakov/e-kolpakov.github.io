@@ -44,6 +44,11 @@ but three examples:
 2. A method on a class that takes a parameter
 3. A class with a dependency.
 
+For brewity, I'll use only small subset of the examples in the post text, and full examples can be found at 
+[GitHub][examples]
+
+[examples]: 
+
 Here we go:
 
 ~~~python
