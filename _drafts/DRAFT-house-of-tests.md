@@ -45,7 +45,7 @@ but three examples:
 2. A method on a class that takes a parameter
 3. A class with a dependency.
 
-For brewity, I'll use only small subset of the examples in the post text, and full examples can be found at 
+For brewity though, I'll use only small subset of the examples in the post text, and full examples can be found at 
 [GitHub][examples]
 
 [examples]: {{ page.github_link_base }}
@@ -65,7 +65,7 @@ class User:
 
     def is_older(self, other) -> bool:
         assert(isinstance(other, User))
-        return self.date_of_birth <= other.date_of_birth
+        return self.date_of_birth < other.date_of_birth
 
 def age_at(user: User, date: date) -> int:
     return max(relativedelta(date, user.date_of_birth).years, 0)
@@ -137,11 +137,13 @@ Long story short, our test suite will look like this ([full listing][example-sta
 [example-standard]: {{ page.github_link_base }}/test/test_user.py
 
 ~~~python
+# user_fixtures.py
 class Users:
     jack = User(1, "jack", parser.parse("1999-01-01"))
     jill = User(2, "Jill", parser.parse("2001-06-14"))
     jane = User(3, "Jane", parser.parse("2003-01-01"))
 
+# test_user.py
 class TestAgeAt(unittest.TestCase):
     def test_age_at_birth(self):
         self.assertEqual(age_at(Users.jack, Users.jack.date_of_birth), 0)
@@ -153,10 +155,8 @@ class TestAgeAt(unittest.TestCase):
         self.assertEqual(age_at(Users.jack, parser.parse("2015-01-01")), 16)
 
     def test_age_before_born(self):
-        self.assertEqual(age_at(Users.jack, parser.parse("1990-01-01")), 0)
-
-if __name__ == '__main__':
-    unittest.main()
+        with self.assertRaises(AssertionError):
+            age_at(Users.jack, parser.parse("1990-01-01"))
 ~~~
 {:.long-code}
 
@@ -239,27 +239,92 @@ if __name__ == "__main__":
 
 [doctest]: https://docs.python.org/3.8/library/doctest.html
 
-# Basement 2: No tests
+## Two-storey house
 
-Sometimes the right amount of tests is no tests at all. Think of one-time scripts, early prototypes and other throwaway
-code. In such cases, investing time into writing tests will not pay out - unless developer embraced TDD to the extent
-when they are more efficient with TDD than without.
+![](/assets/img/2019-11-12-house-of-tests/2-storey.jpg){:.image.inline-text-wrap.right}
 
-Pros: low effort
-Cons: everything else
+One thing about tests that is missed way too often is that _good_ suite of tests exercise not only "happy path" on 
+"common case", but also a range of cases with "normal" inputs, edge cases, and potential failures. Simply put, ideally
+the test suite define the limits of the applicability of the code under test, and then test it's behavior:
+ 
+* _inside_ the limits and with multiple different inputs
+* _at_ the boundary - also known as edge cases
+* ... and _outside_ of the applicability area, to make sure that code behavior is still reasonable
 
-Now, having seen the deeps, let's checkout the heights.
+The issue is, "multiple good inputs" and "bad inputs" are almost always unintentionally overlooked or intentionally 
+skipped. There aren't much that can be done to address the unintentional overlooking - forcing the branch coverage can 
+partially help, but it has it's limitations[^2]; keeping an eye on it during code reviews is an option, but prone to 
+human error. However, the "intentionally skipped" can be mostly cured - as most if it comes from the fact that testing
+all that pesky corner cases is quite tedious and time-consuming.
+     
+The cure ~for the itch~ is called _data-driven_ tests[^3] or _parameterized_ tests. The idea is simple - quite often the
+behavior can be described as a collection of reference inputs and expected outputs/behaviors. Instead of having each 
+test case pick single input case, let's instead write the test case as a function that accept inputs/outputs as 
+arguments and assert on expected behavior. This makes creating large suits of test cases (1) much less tedious (which
+we programmers hate) and (2) much more creative and expressive (which we love). 
 
-# Level 2: Data-driven tests
+Most of the mainstream test frameworks either provide parameterized tests feature (e.g. [JUnit][junit-parameterized], 
+[NUnit][nunit-parameterized], [Boost.Test][boost-test]), have 3rd-party plugin libraries that provide that feature 
+(e.g. python [ddt][ddt], [scalacheck][scalacheck-table-driven]) or can leverage on existing language features (e.g. 
+[go][go-parameterized], Scala).
 
-Need to test corner cases and failures.
-"Classical" framework approach is quite verbose - one test per input.
-Data-driven tests (e.g. python's `ddt`) reduce the boilerplate by providing means to write "parameterized" tests
-JUnit parameterized tests are somewhat weak and still verbose - practically it requires one class per method (
-but maybe I overlooked something). 
+So, here's our test suite extended to use data-driven test ([full listing][example-ddt]):
 
-Simply put, for each test several inputs are given, and test checks if the assertions hold for all the inputs.
-Generally it is advised to avoid complex logic (loops, conditionals) inside the body of the data-driven test. 
+```python
+@ddt.ddt
+class TestAgeAt(unittest.TestCase):
+    @ddt.unpack
+    @ddt.data(
+        (Users.jack, Users.jack.date_of_birth, 0),
+        (Users.jill, parser.parse("2019-11-11"), 18),
+        (Users.jack, parser.parse("2015-01-01"), 16),
+        (Users.jane, parser.parse("2203-01-01"), 200),
+    )
+    def test_age_at(self, user, date, expected_age):
+        self.assertEqual(age_at(user, date), expected_age)
+
+    @ddt.unpack
+    @ddt.data(
+        (Users.jack, parser.parse("1990-01-01")),
+        (Users.jane, Users.jane.date_of_birth - timedelta(seconds=1)),
+    )
+    def test_age_before_born(self, user, date):
+        with self.assertRaises(AssertionError):
+            age_at(user, date)
+```
+
+This style makes it really easy to add more cases if necessary, so handling multiple "normal" cases and edge cases 
+becomes trivial. This testing style literally forces to think of edge cases and applicability limits. 
+
+One caveat is that handling different behaviors (e.g. normal output vs. exception) still better be done via adding more
+test methods. While sometimes it might make sense to have one data-driven test that covers entire range of behaviors of
+code under test, this usually can only be done via loops or conditional inside the test body - and having logic in the 
+test body is usually discouraged. If you weren't _yet_ bit by the complex logic in the tests - just trust me, I've been
+there and myself guilty of that crime.
+
+**Building to this level:** effort is quite different between if you're building a new test suite and decide to go to 
+  this level straight away, or re-building an existing codebase - I'd actually suggest to let the existing test live as
+  they are, and only gradually migrate when changing actual code. In any case, building to this level requires a small,
+  but sensible shift in thinking - one should start thinking of code under test _explicitly_ in terms of inputs, 
+  outputs, behaviors and invariants.\\ 
+**Pros:** Much less tedious and more creative, "forces" to think about applicability limits and edge cases.\\
+**Cons:** Some test frameworks/languages requires additional dependencies (albeit those dependencies are usually 
+  lightweight); somewhat incentivize complex tests that has logic in them; requires some change in thinking.\\
+**Should I get here:** I would strongly recommend - data-driven tests are a very useful tool that _multiplies_ 
+  developer productivity in writing tests, while also improving the quality of test suite (i.e. better coverage, 
+  easier to read&understand, etc.) 
+  
+[^2]: How many branches does this implementation have `def string_size_in_bytes(a): return len(a)`? 
+    And how many corner cases? And how many bugs (spoiler: utf-8)?
+[^3]: Fun fact - acronym of data-driven test (DDT) is the reverse of test-driven development (TDD).
+    
+[junit-parameterized]: https://github.com/junit-team/junit4/wiki/Parameterized-tests
+[nunit-parameterized]: https://github.com/nunit/docs/wiki/Parameterized-Tests
+[boost-test]: https://www.boost.org/doc/libs/1_59_0/libs/test/doc/html/boost_test/tests_organization/test_cases/test_case_generation.html
+[ddt]: https://ddt.readthedocs.io/en/latest/index.html
+[scalacheck-table-driven]: http://www.scalatest.org/user_guide/table_driven_property_checks
+[go-parameterized]: https://github.com/golang/go/wiki/TableDrivenTests
+[example-ddt]: {{ page.github_link_base }}/test/test_user_ddt.py
 
 # Level 3: Generator-driven property-based tests
 

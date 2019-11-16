@@ -11,11 +11,12 @@ class User:
 
     def is_older(self, other) -> bool:
         assert(isinstance(other, User))
-        return self.date_of_birth <= other.date_of_birth
+        return self.date_of_birth < other.date_of_birth
 
 
 def age_at(user: User, date: date) -> int:
-    return max(relativedelta(date, user.date_of_birth).years, 0)
+    assert(user.date_of_birth <= date)
+    return relativedelta(date, user.date_of_birth).years
 
 
 class UserRepository:

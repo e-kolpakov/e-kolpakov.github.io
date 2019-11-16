@@ -2,12 +2,7 @@ import unittest
 from unittest.mock import Mock
 from dateutil import parser
 from src.user import User, UserRepository, UserService, age_at
-
-
-class Users:
-    jack = User(1, "jack", parser.parse("1999-01-01"))
-    jill = User(2, "Jill", parser.parse("2001-06-14"))
-    jane = User(3, "Jane", parser.parse("2003-01-01"))
+from test.user_fixtures import Users
 
 
 class TestUser(unittest.TestCase):
@@ -29,7 +24,8 @@ class TestAgeAt(unittest.TestCase):
         self.assertEqual(age_at(Users.jack, parser.parse("2015-01-01")), 16)
 
     def test_age_before_born(self):
-        self.assertEqual(age_at(Users.jack, parser.parse("1990-01-01")), 0)
+        with self.assertRaises(AssertionError):
+            age_at(Users.jack, parser.parse("1990-01-01"))
 
 
 class UserServiceTest(unittest.TestCase):
