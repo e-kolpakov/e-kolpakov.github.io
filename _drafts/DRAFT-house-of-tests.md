@@ -3,6 +3,7 @@ layout: post
 title: A guide to build a house of tests
 tags: [testing]
 github_link_base: https://github.com/e-kolpakov/e-kolpakov.github.io/tree/testing/_code/2019-11-12-house-of-tests
+image_link_base: /assets/img/2019-11-12-house-of-tests
 ---
 
 There is a well-known and widespread unit/integration/function/end-to-end taxonomy of tests that describe _what_ is 
@@ -17,7 +18,7 @@ success.
 
 Ok, so let's agree on some terminology first.
 
-Let's call layers of the [Test Pyramid][test-pydamid] **"layers"** - these describe _what_ is tested - a single class, 
+Let's call layers of the [Test Pyramid][test-pyramid] **"layers"** - these describe _what_ is tested - a single class, 
 a system, an ecosystem of microservices, or an entire application/solution.
 
 Let's call different approaches and techniques to testing **"floors"** - these describe _how_ testing is performed -
@@ -90,9 +91,9 @@ class UserService:
 This is not a TDD session, so we're **not** going to evolve this code - it's already doing what it is supposed to and
 doing it right (I've tested that!)
 
-## Zero-floor building (aka no building at all)
+## No tests - no building at all
 
-![](/assets/img/2019-11-12-house-of-tests/tent.jpg){:.image.inline-text-wrap.right}
+![]({{ page.image_link_base }}/tent.jpg){:.image.inline-text-wrap.right}
 
 Sometimes you really don't want to bother building a house - a temporary accomodation will work just as good. Think of
 a camping site - even though you need to have some roof over your head, you won't build a house - more likely to place 
@@ -118,16 +119,16 @@ especially when the infrastructure is still small and can be comprehended easily
 **Building to this level:** a conscious decision to not _"waste"_ time on testing.\\
 **Pros:** fastest to achieve - there's literally nothing to do.\\
 **Cons:** everything else.\\
-**Should I get here:** proooobably not, unless you know what you're doing, and why,\\
+**Should I get here:** proooobably not, unless you know what you're doing, and why.
 
 [aws-instance]: https://www.terraform.io/docs/providers/aws/r/instance.html
 
 [^1]: That is, something that is acceptable short-term and someone will rectify the issues/tech debt if this piece of 
     software suddenly becomes very important or long-living. 
 
-## Single floor landed house (aka bungalow, aka cottage)
+## One method per test case - single-floor landed house (aka bungalow, aka cottage)
 
-![](/assets/img/2019-11-12-house-of-tests/bungalow.jpg){:.image.inline-text-wrap.right}
+![]({{ page.image_link_base }}/bungalow.jpg){:.image.inline-text-wrap.right}
 
 When we speak about testing, by default we mean this - tests are written and executed using some 3rd party testing 
 framework, such as JUnit (and friends/clones/forks), `unittest`, `specs`, etc.
@@ -163,22 +164,24 @@ class TestAgeAt(unittest.TestCase):
 Pretty straightforward and unsurprising, right? The main thing here is that we have each test case represented by a 
 dedicated method.
 
-**Building to this level:** Getting here requires some effort - how much exactly varies between languages, frameworks 
-and build tools - for the majority of them it's just following the convention/setting up the required configuration.\\
+**Building to this level:** Getting here requires some effort to set up the testing infrastructure - e.g. configure the 
+build tool (like `sbt` or `maven`), test runtime (like `tox`) and/or continuous integration tool/app (e.g. Travis CI). 
+How much effort is required varies between languages, frameworks and build tools, but for the majority of them it's 
+just following the convention in the code layout or setting up the required configuration.\\
 **Pros:** I won't delve too deep into describing the advantages of actually having some automatic tests as they are very 
 well known, but in short it makes capturing errors earlier, increases developer productivity and gives confidence in the 
 software we build.\\
 **Cons:** Major disavantage that actually gives raise to the next "level" is tediousness: single test case is a single 
 method.\\
 **Should I get here:** Absolutely, unless you're happy in a tent.
-  
+
 [pytest]: https://docs.pytest.org/en/latest
 [rspec]: https://rspec.info/
 [scalatest]: http://www.scalatest.org/
 
-### Detour: a cabin
+### Detour: same, but without test framework - a cabin 
 
-![](/assets/img/2019-11-12-house-of-tests/cabin.jpg){:.image.inline-text-wrap.right}
+![]({{ page.image_link_base }}/cabin.jpg){:.image.inline-text-wrap.right}
 
 One other interesting approach is to save a bit on the setting up the test infra, and just use the built-in language 
 features. In such case, the module under test exposes a separate entrypoint - a dedicated method or special combination 
@@ -239,17 +242,17 @@ if __name__ == "__main__":
 
 [doctest]: https://docs.python.org/3.8/library/doctest.html
 
-## Two-storey house
+## Data-driven tests - a house with two floors
 
-![](/assets/img/2019-11-12-house-of-tests/2-storey.jpg){:.image.inline-text-wrap.right}
+![]({{ page.image_link_base }}/2-storey.jpg){:.image.inline-text-wrap.right}
 
 One thing about tests that is missed way too often is that _good_ suite of tests exercise not only "happy path" on 
 "common case", but also a range of cases with "normal" inputs, edge cases, and potential failures. Simply put, ideally
 the test suite define the limits of the applicability of the code under test, and then test it's behavior:
  
-* _inside_ the limits and with multiple different inputs
+* _inside_ the limits and with multiple inputs
 * _at_ the boundary - also known as edge cases
-* ... and _outside_ of the applicability area, to make sure that code behavior is still reasonable
+* _outside_ of the applicability area, to make sure that code behavior is still reasonable
 
 The issue is, "multiple good inputs" and "bad inputs" are almost always unintentionally overlooked or intentionally 
 skipped. There aren't much that can be done to address the unintentional overlooking - forcing the branch coverage can 
@@ -257,7 +260,7 @@ partially help, but it has it's limitations[^2]; keeping an eye on it during cod
 human error. However, the "intentionally skipped" can be mostly cured - as most if it comes from the fact that testing
 all that pesky corner cases is quite tedious and time-consuming.
      
-The cure ~for the itch~ is called _data-driven_ tests[^3] or _parameterized_ tests. The idea is simple - quite often the
+The cure ~~for the itch~~ is called _data-driven_ tests[^3] or _parameterized_ tests. The idea is simple - quite often the
 behavior can be described as a collection of reference inputs and expected outputs/behaviors. Instead of having each 
 test case pick single input case, let's instead write the test case as a function that accept inputs/outputs as 
 arguments and assert on expected behavior. This makes creating large suits of test cases (1) much less tedious (which
@@ -339,6 +342,7 @@ class TestFoo(unittest.TestCase):
   
 [^2]: How many branches does this implementation have `def string_size_in_bytes(a): return len(a)`? 
     And how many corner cases? And how many bugs (spoiler: utf-8)?
+
 [^3]: Fun fact - acronym of data-driven test (DDT) is the reverse of test-driven development (TDD).
     
 [junit-parameterized]: https://github.com/junit-team/junit4/wiki/Parameterized-tests
@@ -349,25 +353,54 @@ class TestFoo(unittest.TestCase):
 [go-parameterized]: https://github.com/golang/go/wiki/TableDrivenTests
 [example-ddt]: {{ page.github_link_base }}/test/test_user_ddt.py
 
-# Level 3: Generator-driven property-based tests
+## Generator-driven property-based tests - three-floor mansion
 
-Property-based: evaluate certain property for given inputs.
-Works well with pure functions, but could be stretched to verify side effects as well. Beware: not all mock libs work
-well in prop-based tests.
+![]({{ page.image_link_base }}/mansion.jpg){:.image.inline-text-wrap.right}
 
-Table-driven property-based - this is in fact a data-driven test, slightly rebranded and lifted into property-based
-framework infrastructure.
- 
-Generator-driven property-based - you may call it "data-driven on steroids" - instead of _defining_ inputs developer 
-tells the test framework how to _generate_ them. The test framework then generates _all_ possible inputs and checks 
-the assertions... in theory. In practice, since resources are finite and inputs' space is usually quite large, test 
-framework semi-randomly generate a finite set of inputs - `scalacheck` uses 100 by default.
+The main idea at this "level" is quite simple and builds on the foundation of data-driven tests - one might call it 
+"data-driven on steroids" - instead of _defining_ the inputs developer tells the test framework how to _generate_ 
+them[^4]. The test framework then generates _all_ possible inputs and checks the assertions... in theory. In practice, 
+since resources are finite and inputs' space is usually quite large, test framework semi-randomly generate a finite set 
+of inputs - `scalacheck` uses 100 by default. This approach works especially well with pure functions (which are 
+completely defined by their inputs and outputs), but could be stretched to verify state and side effects as well. 
+But beware - not all mock libs work well in property-based test (I'm looking at you `Mockito`).
 
-If generators are written well, the generated inputs will include edge cases.
- 
-Building generators is an up-front investment, but they are highly reusable:
-* they _compose_, which makes it possible to define a "composite" generator from the two existing ones
-* one can use the same generator in multiple tests
+[^4]: Give a man a fish...
+
+The property-based tests were conceptualized by the authors of [QuickCheck][quick-check] and date back to early 2000s. 
+Since then, QuickCheck was ported (or adapted) to virtually all mainstream languages - examples are 
+[scalacheck][scalacheck] for Scala, [hypothesis][hypothesis] for python, [Gopter][gopter] for Go and many others.
+
+In property-based testing, developer task is to define two things: instructions to create inputs - called `generators` 
+and "what to test" - called `properties`. Test lib/framework than adds a ton of other machinery that wires the 
+generators and properties together, and verifies properties under multiple inputs coming from the generators (via 
+`runners`), reports successes/failures (using `reporters`) and automatically tries to find the minimal example for the
+failing tests (using `shrinkers`).
+
+If generators are written well, the generated inputs will include edge cases that can uncover failures one wouldn't 
+even think about - e.g. `scalacheck` built-in string generator produces entire range of unicode characters, including 
+higher panes of unicode, non-printable characters and other weird stuff. Building generators is an up-front investment, 
+but they are highly reusable:
+* generators _compose_, which enables using one generator as an input to the other or "join" multiple generators to 
+    form a more complex one
+* property-based frameworks usually provide built-in features to restrict the range of outputs coming from the generator
+    without defining a new one
+* same generator can be used in multiple tests
+
+The bigger challenge, however, is defining "good" properties - the ones that confirm the desired behavior, and also 
+fail when this behavior is not observed. The two major caveats are "tautological" tests, that partially or fully repeat 
+the code under test; and "self-fulfilling" ~~prophecies~~ properties that are always true.
+
+[quick-check]: http://hackage.haskell.org/package/QuickCheck
+[scalacheck]: https://www.scalacheck.org/
+[hypothesis]: https://hypothesis.readthedocs.io/en/latest/
+[gopter]: https://github.com/leanovate/gopter
+
+I think that's enough of theory for this post (for those who want more, [this youtube video][prop-based-testing-youtube]
+might give what you want), let's take a look how our test suite would look under this testing paradigm.
+
+
+[prop-based-testing-youtube]: https://www.youtube.com/watch?v=shngiiBfD80
 
 
 # Level 4: Command-driven tests
@@ -380,6 +413,4 @@ would evaluate the program under all possible use scenarios - again theoreticall
 # Conclusion
 
 Pick the right level - the higher you go, the more upfront investment and more senior team is needed, but benefits are
-numerous. Generator-driven tests can even uncover failures one wouldn't even think about - e.g. built-in string 
-generator spits entire range of unicode characters, including higher panes of unicode, non-printable characters and 
-other weird stuff.
+numerous.
