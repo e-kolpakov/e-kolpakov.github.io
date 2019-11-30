@@ -15,7 +15,7 @@ class TestUser(unittest.TestCase):
         (Users.jane, Users.jill, False),
     )
     @ddt.unpack
-    def test_is_older_older(self, user1, user2, expected_is_older):
+    def test_is_older(self, user1, user2, expected_is_older):
         actual = user1.is_older(user2)
         self.assertEqual(actual, expected_is_older, f"{user1.name} is_older {user2.name} was not {expected_is_older}")
 

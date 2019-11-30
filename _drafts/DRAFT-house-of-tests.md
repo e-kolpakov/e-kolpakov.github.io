@@ -397,13 +397,68 @@ the code under test; and "self-fulfilling" ~~prophecies~~ properties that are al
 [gopter]: https://github.com/leanovate/gopter
 
 I think that's enough of theory for this post (for those who want more, [this youtube video][prop-based-testing-youtube]
-might give what you want), let's take a look how our test suite would look under this testing paradigm.
-
+might give what you want), let's take a look how our test suite would look under this testing paradigm (
+[full listing][prop-based-full-listing]).
 
 [prop-based-testing-youtube]: https://www.youtube.com/watch?v=shngiiBfD80
 
+```python
+# user_generators.py
+import hypothesis.strategies as st
+from src.user import User
 
-# Level 4: Command-driven tests
+user_id_gen = st.integers(min_value=1)  # not really required, just to demonstrate composeability
+user_gen = st.builds(User, user_id_gen, st.text(), st.datetimes())
+
+# user_test_properties
+class TestAgeAt(unittest.TestCase):
+    @given(user_gen, st.datetimes())
+    def test_age_at_tautological(self, user, date):
+        # FIXME: this is an example of tautological test - DO NOT DO THIS
+        assume(user.date_of_birth <= date)
+        expected_age = relativedelta(date, user.date_of_birth).years
+        self.assertEqual(age_at(user, date), expected_age)  # property
+
+    @given(user_gen, st.integers(min_value=0, max_value=1000), st.data())
+    def test_age_at_backward(self, user, age, data):
+        assume(user.date_of_birth.year + age <= 10000)  # relativedelta doesn't like year 10000 and above
+        # one of the techniques to define a property - work backwards from the output to the input that will produce it
+        check_age_at = data.draw(st.datetimes(
+            min_value=user.date_of_birth + relativedelta(dt1=user.date_of_birth, years=age),
+            max_value=user.date_of_birth + relativedelta(dt1=user.date_of_birth, years=age+1) - timedelta(microseconds=1),
+        ))
+        self.assertEqual(age_at(user, check_age_at), age)  # property
+
+    @given(user_gen, st.datetimes())
+    def test_age_before_born(self, user, datetime):
+        assume(user.date_of_birth > datetime)
+        with self.assertRaises(AssertionError):  # property
+            age_at(user, datetime)
+```
+
+[prop-based-full-listing]: {{ page.github_link_base }}/test/test_user_properties.py
+
+Overall, this is quite an advanced technique that calls for a certain change in developers' way of thinking about the
+code. However, in my practice even junior developers with 1-2 years of experience, provided with good guidance and 
+ample examples, were able to grasp the concepts and write very good suits of property-based tests.
+
+**Building to this level:** Writing property-based tests require even further change in thinking - think about 
+  more general "properties" that hold for all the possible inputs (or at least a subset of them). Creating the
+  generators usually requires upfront effort, but usually it is quite fun. Another challenge is avoiding 
+  tautological and "test nothing" properties - which is a constant effort.\\
+**Pros:** Cover even more ground compared to data-driven tests; able to exercise very subtle, narrow and rare edge 
+  cases - preventing bugs from lurking there; provides a different view on the code from documentation perspective, as 
+  tests define general properties that hold for the code, not the behavior at particular inputs.\\
+**Cons:** Requires significant change in thinking; has a subtle and somewhat hard-to-avoid (especially to new folks) 
+  caveats; significant up-front investment into defining generators.\\
+**Should I get here:** This is where it starts to become controversial - on one hand there is increased complexity and 
+  more room for test failures coming from the test framework might be detrimental to productivity and makes onboarding 
+  new teammembers harder (although, not much). On the other hand, there are significant and desireable advantages, as 
+  well as some fun and professional pride from using such an advanced techinque.
+
+# Stateful testing
+
+https://github.com/typelevel/scalacheck/blob/master/doc/UserGuide.md#stateful-testing
 
 This is actually uncharted territory to me. The idea here is to make generator that would generate initial state of the 
 application and sequence of commands be executed, run it, and verify the output. This is actually quite close to fully 
