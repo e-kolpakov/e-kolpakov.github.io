@@ -353,7 +353,7 @@ class TestFoo(unittest.TestCase):
 [go-parameterized]: https://github.com/golang/go/wiki/TableDrivenTests
 [example-ddt]: {{ page.github_link_base }}/test/test_user_ddt.py
 
-## Generator-driven property-based tests - three-floor mansion
+## Generator-driven property-based tests - a mansion with an attic (and a garage in the basement)
 
 ![]({{ page.image_link_base }}/mansion.jpg){:.image.inline-text-wrap.right}
 
@@ -363,7 +363,7 @@ them[^4]. The test framework then generates _all_ possible inputs and checks the
 since resources are finite and inputs' space is usually quite large, test framework semi-randomly generate a finite set 
 of inputs - `scalacheck` uses 100 by default. This approach works especially well with pure functions (which are 
 completely defined by their inputs and outputs), but could be stretched to verify state and side effects as well. 
-But beware - not all mock libs work well in property-based test (I'm looking at you `Mockito`).
+But beware - not all mock libraries work well in property-based test (I'm looking at you `scalamock`).
 
 [^4]: Give a man a fish...
 
@@ -389,7 +389,13 @@ but they are highly reusable:
 
 The bigger challenge, however, is defining "good" properties - the ones that confirm the desired behavior, and also 
 fail when this behavior is not observed. The two major caveats are "tautological" tests, that partially or fully repeat 
-the code under test; and "self-fulfilling" ~~prophecies~~ properties that are always true.
+the code under test; and "self-fulfilling" ~~prophecies~~ properties that are always true. Avoiding them obviously 
+depends on the code at hand, but there are a few ideas/approaches that are generally applicable, such as:
+
+1. Round-trip identity testing - `json.serialize(json.deserialize(input)) should === input` 
+2. "Generate more" - `forAll(left, right) { left + right should startWith left }`
+3. "Oracle" - a simpler (maybe even naive) and 100% correct implementation 
+`forAll(Gen.listOf(Arbitrary.int)) { binarySearch(input) should === sort(input).head }`
 
 [quick-check]: http://hackage.haskell.org/package/QuickCheck
 [scalacheck]: https://www.scalacheck.org/
@@ -410,7 +416,7 @@ from src.user import User
 user_id_gen = st.integers(min_value=1)  # not really required, just to demonstrate composeability
 user_gen = st.builds(User, user_id_gen, st.text(), st.datetimes())
 
-# user_test_properties
+# user_test_properties.py
 class TestAgeAt(unittest.TestCase):
     @given(user_gen, st.datetimes())
     def test_age_at_tautological(self, user, date):
@@ -456,16 +462,106 @@ ample examples, were able to grasp the concepts and write very good suits of pro
   new teammembers harder (although, not much). On the other hand, there are significant and desireable advantages, as 
   well as some fun and professional pride from using such an advanced techinque.
 
-# Stateful testing
+## Model-based testing (aka stateful testing) - a castle with a row
 
-https://github.com/typelevel/scalacheck/blob/master/doc/UserGuide.md#stateful-testing
+As with previous "levels", **stateful testing** builds on the previous one - generator-driven tests - and tries to 
+address an even more challenging task: checking system-under-test behavior under *series* of interactions.
 
-This is actually uncharted territory to me. The idea here is to make generator that would generate initial state of the 
-application and sequence of commands be executed, run it, and verify the output. This is actually quite close to fully 
-automated program correctness verification - as generator can generate all the possible inputs and command sequences it
-would evaluate the program under all possible use scenarios - again theoretically.
+In a nutshell, the idea is simple - let's introduce classes that represent actions/operations performed on the SUT[^5] - 
+e.g. with our `Userrepository` example commands would be `UpdateUserName(...)` and `ReadUser(...)`. Since actions are 
+now representable as object instances (i.e. data, not just code), one now can define generators for the actions, 
+which obviously makes it possible to generate sequences of actions.
+
+[^5]: This technique is also known as _Command_ pattern.
+
+The other part of the equation is to define how the system's state evolve under the commands. 
+[`Scalacheck` stateful testing][scalacheck-stateful] suggests some sort of "oracle" approach - for each command 
+developer defines expected state evolutions using a simplified representation of the SUT's internal state, and 
+postconditions - which are used by the scalacheck to perform assertions on the state and verify implementation 
+correctness.
+
+[scalacheck-stateful]: https://github.com/typelevel/scalacheck/blob/master/doc/UserGuide.md#stateful-testing
+
+As usual, let's take a look of how tests in this style would look like, using `hypothesis`'s 
+[stateful testing][hypothesis-stateful]. The approach here is slightly different from Scalacheck's though - the test is
+represented as a state machine, and assertions are encoded in the state transitions.
+
+[hypothesis-stateful]: https://hypothesis.readthedocs.io/en/latest/stateful.html#stateful-testing 
+
+```python
+#user.py
+class InMemoryUserRepository(UserRepository):
+    def __init__(self):
+        self._store = dict()
+
+    def get(self, id: int) -> User:
+        return self._store.get(id)
+
+    def save(self, user: User) -> None:
+        # if len(self._store) > 2:  # some non-trivial buggy code to trigger the error
+        #     return
+        self._store[user.id] = user
+
+# test_user_stateful.py
+import unittest
+from hypothesis.stateful import RuleBasedStateMachine, rule, Bundle
+from src.user import User, InMemoryUserRepository
+from test.user_generators import user_id_gen, user_gen
+
+class InMemoryUserRepositoryFSM(RuleBasedStateMachine):
+    def __init__(self):
+        super(InMemoryUserRepositoryFSM, self).__init__()
+        self.repository = InMemoryUserRepository()
+        self.model = dict()
+
+    users = Bundle('users')
+
+    @rule(target=users, user=user_gen)
+    def add_user(self, user):
+        return user
+
+    @rule(user=users)
+    def save(self, user: User):
+        self.model[user.id] = user
+        self.repository.save(user)
+
+    @rule(user=users)
+    def get(self, user):
+        assert self.repository.get(user.id) == self.model.get(user.id)
+
+
+InMemoryUserRepositoryTest = InMemoryUserRepositoryFSM.TestCase
+```
+
+This is actually a very short example - [full listing][stateful-full-listing] only contains the usual `unittest` 
+boilerplate. However, this test is capable of catching quite subtle implementation bugs that would be quite hard to 
+test otherwise - e.g. the one that is commented out in the repository code.
+
+[stateful-full-listing]: {{ page.github_link_base }}/test/test_user_stateful.py
+
+
+**Building to this level:** Almost inevitably requires a simpler model of the system-under-test - e.g. an in-memory 
+    implementation of repository - so such model needs to be created. On top of that, some sort of encoding of actions
+    is necessary (explicit command objects in scalacheck, rules in hypothesis, etc.), and then maybe pre-/post- 
+    conditions, pre-/post- invariants, action applicability rules ("can I apply action X if the state is Y") and 
+    more...\\
+**Pros:** Gives ability to capture bugs/inconsistent behavior that arise in the system in the course of use. Basically
+    generates _the tests themselves_.\\
+**Cons:** Requires significant change in thinking; has a subtle and somewhat hard-to-avoid (especially to new folks) 
+  caveats; significant up-front investment into defining generators.\\
+**Should I get here:** Actually, depends on the complexity of the state/behavior. With simple and straightforward state
+    and transitions, it might be actually faster and easier to go straight to the model-based/stateful testing as 
+    opposed to virtually any other testing technique. However, it mostly relies on being able to define a simpler model
+    of the system (similar to the "oracle" in prop-based testing) - which might be challenging in side-effect heavy
+    implementations.
 
 # Conclusion
 
-Pick the right level - the higher you go, the more upfront investment and more senior team is needed, but benefits are
-numerous.
+Just as everywhere else, there are no "silver bullet" with regards to "how sophisticated my test suite should be?". 
+There are multiple factors at play - from increasing confidence (which calls for 100% edge case coverage) to developer
+productivity (which reminds that tests does nothing to solve the business problem at hand) - and as such some balance 
+needs to be found. Unsurprisingly, balance differs between technologies, projects and teams - while small/simple 
+codebases might do just fine with a rudimentary or even non-existent test suites, up-front and maintenance investment 
+into more sophisticated test suites quite often pays off for a larger solutions with long lifetimes. 
+
+So, pick the right level - and hope this (loooong) post gave you something to make a more informed deciosion.

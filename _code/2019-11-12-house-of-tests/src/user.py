@@ -24,6 +24,18 @@ class UserRepository:
     def save(self, user: User) -> None: pass
 
 
+class InMemoryUserRepository(UserRepository):
+    def __init__(self):
+        self._store = dict()
+
+    def get(self, id: int) -> User:
+        return self._store.get(id)
+
+    def save(self, user: User) -> None:
+        # if len(self._store) > 2:  # some non-trivial buggy code to trigger the error
+        #     return
+        self._store[user.id] = user
+
 class UserService:
     def __init__(self, user_repo: UserRepository):
         self._repo = user_repo
