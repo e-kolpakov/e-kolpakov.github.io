@@ -9,8 +9,8 @@ image_link_base: /assets/img/2019-11-12-house-of-tests
 There is a well-known and widespread unit/integration/function/end-to-end taxonomy of tests that describe _what_ is 
 tested - single program component, single service or an entire solution. There is also a less known taxonomy of _how_
 testing is performed - from not having tests at all to the current golden standard of "single method - single test 
-case" to a more advanced techniques - I sometimes call it "levels" or "floors" of testing, as they build upon each 
-other. Interestingly, "buildings" of all levels deserve to exist as each "floor" has its pros and cons - taller 
+case" to a more advanced techniques - I sometimes call it "levels" of testing, as they build upon each 
+other. Interestingly, "buildings" of all heights deserve to exist as each "level" has its pros and cons - taller 
 "buildings" are generally harder to build and maintain - so choosing the right "height" is important for long-term 
 success.
 
@@ -21,10 +21,10 @@ Ok, so let's agree on some terminology first.
 Let's call layers of the [Test Pyramid][test-pyramid] **"layers"** - these describe _what_ is tested - a single class, 
 a system, an ecosystem of microservices, or an entire application/solution.
 
-Let's call different approaches and techniques to testing **"floors"** - these describe _how_ testing is performed -
+Let's call different approaches and techniques to testing **"levels"** - these describe _how_ testing is performed -
 specifically, how tests are created, executed and reported on.
 
-**Layers** and *floors* are orthogonal - in fact, the higher the **layer**, the harder it is to use "high" *floors*.
+**Layers** and *levels* are orthogonal - in fact, the higher the **layer**, the harder it is to use "high" *levels*.
 For example, one can have *property-based* **unit tests** supported by *standard* **integration tests**.
 
 [test-pyramid]: https://www.google.com.sg/search?q=software+test+pyramid&tbm=isch
@@ -39,7 +39,7 @@ and the latter - "integration" tests.
 
 To be more specific, let's write some code to be tested. One quite common shortsight of many tutorials, how-tos and
 manuals is to pick a very simple use case to avoid unnecessary complexity and focus attention on the topic itself. 
-However, it is than quite challenging to translate it to a more complex situations of real life. So, I'll use not one, 
+However, it is than quite challenging to translate it to a more  real life complex situations. So, I'll use not one, 
 but three examples:
 
 1. A function without any side-effects (aka pure function)
@@ -96,7 +96,7 @@ doing it right (I've tested that!)
 ![]({{ page.image_link_base }}/tent.jpg){:.image.inline-text-wrap.right}
 
 Sometimes you really don't want to bother building a house - a temporary accomodation will work just as good. Think of
-a camping site - even though you need to have some roof over your head, you won't build a house - more likely to place 
+a camping site - even though you need to have some roof over your head, you won't build a house - more likely just put 
 a tent or something similar.
 
 In software world, the analogy of a camping site is an one-time, an infrequently used or a very small software. In such 
@@ -159,20 +159,19 @@ class TestAgeAt(unittest.TestCase):
         with self.assertRaises(AssertionError):
             age_at(Users.jack, parser.parse("1990-01-01"))
 ~~~
-{:.long-code}
 
 Pretty straightforward and unsurprising, right? The main thing here is that we have each test case represented by a 
 dedicated method.
 
 **Building to this level:** Getting here requires some effort to set up the testing infrastructure - e.g. configure the 
-build tool (like `sbt` or `maven`), test runtime (like `tox`) and/or continuous integration tool/app (e.g. Travis CI). 
-How much effort is required varies between languages, frameworks and build tools, but for the majority of them it's 
-just following the convention in the code layout or setting up the required configuration.\\
-**Pros:** I won't delve too deep into describing the advantages of actually having some automatic tests as they are very 
-well known, but in short it makes capturing errors earlier, increases developer productivity and gives confidence in the 
-software we build.\\
+    build tool (like `sbt` or `maven`), test runtime (like `tox`) and/or continuous integration tool/app (e.g. Travis CI). 
+    How much effort is required varies between languages, frameworks and build tools, but for the majority of them it's 
+    just following the convention in the code layout or setting up the required configuration.\\
+**Pros:** I won't delve too deep into describing the advantages of actually having some automatic tests as they are 
+    very well known, but in short it makes capturing errors earlier, increases developer productivity and gives 
+    confidence in the software we build.\\
 **Cons:** Major disavantage that actually gives raise to the next "level" is tediousness: single test case is a single 
-method.\\
+    method.\\
 **Should I get here:** Absolutely, unless you're happy in a tent.
 
 [pytest]: https://docs.pytest.org/en/latest
@@ -260,9 +259,9 @@ partially help, but it has it's limitations[^2]; keeping an eye on it during cod
 human error. However, the "intentionally skipped" can be mostly cured - as most if it comes from the fact that testing
 all that pesky corner cases is quite tedious and time-consuming.
      
-The cure ~~for the itch~~ is called _data-driven_ tests[^3] or _parameterized_ tests. The idea is simple - quite often the
-behavior can be described as a collection of reference inputs and expected outputs/behaviors. Instead of having each 
-test case pick single input case, let's instead write the test case as a function that accept inputs/outputs as 
+The cure ~~for the itch~~ is called _data-driven_ tests[^3] or _parameterized_ tests. The idea is simple - quite often 
+the behavior can be described as a collection of reference inputs and expected outputs/behaviors. Instead of having 
+each test case pick single input case, let's instead write the test case as a function that accept inputs/outputs as 
 arguments and assert on expected behavior. This makes creating large suits of test cases (1) much less tedious (which
 we programmers hate) and (2) much more creative and expressive (which we love). 
 
