@@ -1,6 +1,6 @@
 ---
 layout: post
-title: A guide to build a house of tests
+title: Building tests - part 1
 tags: [testing]
 github_link_base: https://github.com/e-kolpakov/e-kolpakov.github.io/tree/testing/_code/2019-11-12-house-of-tests
 image_link_base: /assets/img/2019-11-12-house-of-tests
@@ -9,23 +9,28 @@ image_link_base: /assets/img/2019-11-12-house-of-tests
 There is a well-known and widespread unit/integration/function/end-to-end taxonomy of tests that describe _what_ is 
 tested - single program component, single service or an entire solution. There is also a less known taxonomy of _how_
 testing is performed - from not having tests at all to the current golden standard of "single method - single test 
-case" to a more advanced techniques - I sometimes call it "levels" of testing, as they build upon each 
-other. Interestingly, "buildings" of all heights deserve to exist as each "level" has its pros and cons - taller 
-"buildings" are generally harder to build and maintain - so choosing the right "height" is important for long-term 
-success.
+case" to a more advanced techniques - sometimes I call them "levels" of testing, as they build upon each 
+other - like floors in a building. Interestingly, "buildings" of all heights deserve to exist as each "level" has its
+pros and cons - taller "buildings" are generally harder to build and maintain, but pack more inner space for the same
+land area - so choosing the right "height" is important for long-term success.
 
-# A guide to build a house of tests
+# Building tests - part 1
 
-Ok, so let's agree on some terminology first.
+This post consists of two parts:
 
-Let's call layers of the [Test Pyramid][test-pyramid] **"layers"** - these describe _what_ is tested - a single class, 
-a system, an ecosystem of microservices, or an entire application/solution.
+* Part 1 - sets up general background and covers the "simpler" approaches to testing (YOU ARE HERE)
+* [Part 2][part2] - continues on to talk about more sophisticated techniques necessary to build higher "buildings".
 
-Let's call different approaches and techniques to testing **"levels"** - these describe _how_ testing is performed -
-specifically, how tests are created, executed and reported on.
+## "Levels" and Test Pyramid 
 
-**Layers** and *levels* are orthogonal - in fact, the higher the **layer**, the harder it is to use "high" *levels*.
-For example, one can have *property-based* **unit tests** supported by *standard* **integration tests**.
+The **"levels"** I'm talking about in this post are not related to the [Test Pyramid][test-pyramid]. The different
+bands of the pyramid describe _what_ is tested - a single class, a system, an ecosystem of microservices, or an 
+entire application/solution. What I call **"levels"** are different approaches and techniques to testing - these 
+describe _how_ it is tested - specifically, how tests are created, executed and reported on.
+
+**Levels** are orthogonal to the test pyramid bands - in fact, the higher the band, the harder it is to use "high" 
+**level**; but one can certainly use different **levels** at different bands. For example, **property-based** 
+unit tests supported by **"standard"** integration tests.
 
 [test-pyramid]: https://www.google.com.sg/search?q=software+test+pyramid&tbm=isch
 
@@ -38,16 +43,16 @@ and the latter - "integration" tests.
 ## What do we test, exactly?
 
 To be more specific, let's write some code to be tested. One quite common shortsight of many tutorials, how-tos and
-manuals is to pick a very simple use case to avoid unnecessary complexity and focus attention on the topic itself. 
-However, it is than quite challenging to translate it to a more  real life complex situations. So, I'll use not one, 
+manuals is to pick a very simple use case - to avoid unnecessary complexity and focus attention on the topic itself. 
+However, it is than quite challenging to translate it to a more complex real life situations. So, I'll use not one, 
 but three examples:
 
 1. A function without any side-effects (aka pure function)
 2. A method on a class that takes a parameter
 3. A class with a dependency.
 
-For brewity though, I'll use only small subset of the examples in the post text, and full examples can be found at 
-[GitHub][examples]
+For brewity though, I'll use only small subset of them in the post text, but full listings can be found at 
+[GitHub][examples].
 
 [examples]: {{ page.github_link_base }}
 
@@ -208,7 +213,7 @@ ints.self_test()
 
 This seems hacky (and indeed it is), as the test code is shipped with the production code, but it is less of a problem
 here, as test code doesn't add any dependencies and require no installation actions. Moreover, some languages have 
-certain level of support for this "feature" - e.g. python has [doctest][doctest] module that allows writing and running
+certain level of support for this feature - e.g. python has [doctest][doctest] module that allows writing and running
 tests in the documentation strings.
 
 ```python
@@ -270,6 +275,10 @@ Most of the mainstream test frameworks either provide parameterized tests featur
 (e.g. python [ddt][ddt], [scalacheck][scalacheck-table-driven]) or can leverage on existing language features (e.g. 
 [go][go-parameterized], Scala, Ruby).
 
+[^2]: How many branches does this implementation have `def string_size_in_bytes(a): return len(a)`? 
+    And how many corner cases? And how many bugs (spoiler: utf-8)?
+[^3]: Fun fact - acronym of data-driven test (DDT) is the reverse of test-driven development (TDD).
+
 So, here's our test suite extended to use data-driven test ([full listing][example-ddt]):
 
 ```python
@@ -300,9 +309,9 @@ becomes trivial. This testing style literally forces to think of edge cases and 
 
 One caveat is that handling different behaviors (e.g. normal output vs. exception) still better be done via adding more
 test methods. While sometimes it might make sense to have one data-driven test that covers entire range of behaviors of
-code under test, this usually can only be done via loops or conditional inside the test body - and having logic in the 
-test body is usually discouraged. If you weren't _yet_ bit by the complex logic in the tests - just trust me, I've been
-there and myself guilty of that crime.
+code under test, this usually can only be done via loops or conditionals inside the test body - and having logic in the 
+test body is usually discouraged. If you weren't _yet_ bitten by the complex logic in the tests - just trust me, it 
+always happens sooner or later - I'm myself myself guilty of that "crime" and have done my "sentence" already :smile:.
 
 One thing to emphasize - there's a significant difference between data-driven test and "classical" test method that 
 does multiple assertions passing different inputs to the code under test. The difference is that "classical" code will
@@ -338,11 +347,6 @@ class TestFoo(unittest.TestCase):
 **Should I get here:** I would strongly recommend - data-driven tests are a very useful tool that _multiplies_ 
   developer productivity in writing tests, while also improving the quality of test suite (i.e. better coverage, 
   easier to read&understand, etc.) 
-  
-[^2]: How many branches does this implementation have `def string_size_in_bytes(a): return len(a)`? 
-    And how many corner cases? And how many bugs (spoiler: utf-8)?
-
-[^3]: Fun fact - acronym of data-driven test (DDT) is the reverse of test-driven development (TDD).
     
 [junit-parameterized]: https://github.com/junit-team/junit4/wiki/Parameterized-tests
 [nunit-parameterized]: https://github.com/nunit/docs/wiki/Parameterized-Tests
@@ -352,215 +356,9 @@ class TestFoo(unittest.TestCase):
 [go-parameterized]: https://github.com/golang/go/wiki/TableDrivenTests
 [example-ddt]: {{ page.github_link_base }}/test/test_user_ddt.py
 
-## Generator-driven property-based tests - a mansion with an attic (and a garage in the basement)
+## Conclusion
 
-![]({{ page.image_link_base }}/mansion.jpg){:.image.inline-text-wrap.right}
+In this section we've covered the more "lightweight" approaches to testing. In the [next part][part2], we'll continue 
+to a more sophisticated - and powerful - techniques that require significant change in thinking about tests.
 
-The main idea at this "level" is quite simple and builds on the foundation of data-driven tests - one might call it 
-"data-driven on steroids" - instead of _defining_ the inputs developer tells the test framework how to _generate_ 
-them[^4]. The test framework then generates _all_ possible inputs and checks the assertions... in theory. In practice, 
-since resources are finite and inputs' space is usually quite large, test framework semi-randomly generate a finite set 
-of inputs - `scalacheck` uses 100 by default. This approach works especially well with pure functions (which are 
-completely defined by their inputs and outputs), but could be stretched to verify state and side effects as well. 
-But beware - not all mock libraries work well in property-based test (I'm looking at you `scalamock`).
-
-[^4]: Give a man a fish...
-
-The property-based tests were conceptualized by the authors of [QuickCheck][quick-check] and date back to early 2000s. 
-Since then, QuickCheck was ported (or adapted) to virtually all mainstream languages - examples are 
-[scalacheck][scalacheck] for Scala, [hypothesis][hypothesis] for python, [Gopter][gopter] for Go and many others.
-
-In property-based testing, developer task is to define two things: instructions to create inputs - called `generators` 
-and "what to test" - called `properties`. Test lib/framework than adds a ton of other machinery that wires the 
-generators and properties together, and verifies properties under multiple inputs coming from the generators (via 
-`runners`), reports successes/failures (using `reporters`) and automatically tries to find the minimal example for the
-failing tests (using `shrinkers`).
-
-If generators are written well, the generated inputs will include edge cases that can uncover failures one wouldn't 
-even think about - e.g. `scalacheck` built-in string generator produces entire range of unicode characters, including 
-higher panes of unicode, non-printable characters and other weird stuff. Building generators is an up-front investment, 
-but they are highly reusable:
-* generators _compose_, which enables using one generator as an input to the other or "join" multiple generators to 
-    form a more complex one
-* property-based frameworks usually provide built-in features to restrict the range of outputs coming from the generator
-    without defining a new one
-* same generator can be used in multiple tests
-
-The bigger challenge, however, is defining "good" properties - the ones that confirm the desired behavior, and also 
-fail when this behavior is not observed. The two major caveats are "tautological" tests, that partially or fully repeat 
-the code under test; and "self-fulfilling" ~~prophecies~~ properties that are always true. Avoiding them obviously 
-depends on the code at hand, but there are a few ideas/approaches that are generally applicable, such as:
-
-1. Round-trip identity testing - `json.serialize(json.deserialize(input)) should === input` 
-2. "Generate more" - `forAll(left, right) { left + right should startWith left }`
-3. "Oracle" - a simpler (maybe even naive) and 100% correct implementation 
-`forAll(Gen.listOf(Arbitrary.int)) { binarySearch(input) should === sort(input).head }`
-
-[quick-check]: http://hackage.haskell.org/package/QuickCheck
-[scalacheck]: https://www.scalacheck.org/
-[hypothesis]: https://hypothesis.readthedocs.io/en/latest/
-[gopter]: https://github.com/leanovate/gopter
-
-I think that's enough of theory for this post (for those who want more, [this youtube video][prop-based-testing-youtube]
-might give what you want), let's take a look how our test suite would look under this testing paradigm (
-[full listing][prop-based-full-listing]).
-
-[prop-based-testing-youtube]: https://www.youtube.com/watch?v=shngiiBfD80
-
-```python
-# user_generators.py
-import hypothesis.strategies as st
-from src.user import User
-
-user_id_gen = st.integers(min_value=1)  # not really required, just to demonstrate composeability
-user_gen = st.builds(User, user_id_gen, st.text(), st.datetimes())
-
-# user_test_properties.py
-class TestAgeAt(unittest.TestCase):
-    @given(user_gen, st.datetimes())
-    def test_age_at_tautological(self, user, date):
-        # FIXME: this is an example of tautological test - DO NOT DO THIS
-        assume(user.date_of_birth <= date)
-        expected_age = relativedelta(date, user.date_of_birth).years
-        self.assertEqual(age_at(user, date), expected_age)  # property
-
-    @given(user_gen, st.integers(min_value=0, max_value=1000), st.data())
-    def test_age_at_backward(self, user, age, data):
-        assume(user.date_of_birth.year + age <= 10000)  # relativedelta doesn't like year 10000 and above
-        # one of the techniques to define a property - work backwards from the output to the input that will produce it
-        check_age_at = data.draw(st.datetimes(
-            min_value=user.date_of_birth + relativedelta(dt1=user.date_of_birth, years=age),
-            max_value=user.date_of_birth + relativedelta(dt1=user.date_of_birth, years=age+1) - timedelta(microseconds=1),
-        ))
-        self.assertEqual(age_at(user, check_age_at), age)  # property
-
-    @given(user_gen, st.datetimes())
-    def test_age_before_born(self, user, datetime):
-        assume(user.date_of_birth > datetime)
-        with self.assertRaises(AssertionError):  # property
-            age_at(user, datetime)
-```
-
-[prop-based-full-listing]: {{ page.github_link_base }}/test/test_user_properties.py
-
-Overall, this is quite an advanced technique that calls for a certain change in developers' way of thinking about the
-code. However, in my practice even junior developers with 1-2 years of experience, provided with good guidance and 
-ample examples, were able to grasp the concepts and write very good suits of property-based tests.
-
-**Building to this level:** Writing property-based tests require even further change in thinking - think about 
-  more general "properties" that hold for all the possible inputs (or at least a subset of them). Creating the
-  generators usually requires upfront effort, but usually it is quite fun. Another challenge is avoiding 
-  tautological and "test nothing" properties - which is a constant effort.\\
-**Pros:** Cover even more ground compared to data-driven tests; able to exercise very subtle, narrow and rare edge 
-  cases - preventing bugs from lurking there; provides a different view on the code from documentation perspective, as 
-  tests define general properties that hold for the code, not the behavior at particular inputs.\\
-**Cons:** Requires significant change in thinking; has a subtle and somewhat hard-to-avoid (especially to new folks) 
-  caveats; significant up-front investment into defining generators.\\
-**Should I get here:** This is where it starts to become controversial - on one hand there is increased complexity and 
-  more room for test failures coming from the test framework might be detrimental to productivity and makes onboarding 
-  new teammembers harder (although, not much). On the other hand, there are significant and desireable advantages, as 
-  well as some fun and professional pride from using such an advanced techinque.
-
-## Model-based testing (aka stateful testing) - a castle with a row
-
-As with previous "levels", **stateful testing** builds on the previous one - generator-driven tests - and tries to 
-address an even more challenging task: checking system-under-test behavior under *series* of interactions.
-
-In a nutshell, the idea is simple - let's introduce classes that represent actions/operations performed on the SUT[^5] - 
-e.g. with our `Userrepository` example commands would be `UpdateUserName(...)` and `ReadUser(...)`. Since actions are 
-now representable as object instances (i.e. data, not just code), one now can define generators for the actions, 
-which obviously makes it possible to generate sequences of actions.
-
-[^5]: This technique is also known as _Command_ pattern.
-
-The other part of the equation is to define how the system's state evolve under the commands. 
-[`Scalacheck` stateful testing][scalacheck-stateful] suggests some sort of "oracle" approach - for each command 
-developer defines expected state evolutions using a simplified representation of the SUT's internal state, and 
-postconditions - which are used by the scalacheck to perform assertions on the state and verify implementation 
-correctness.
-
-[scalacheck-stateful]: https://github.com/typelevel/scalacheck/blob/master/doc/UserGuide.md#stateful-testing
-
-As usual, let's take a look of how tests in this style would look like, using `hypothesis`'s 
-[stateful testing][hypothesis-stateful]. The approach here is slightly different from Scalacheck's though - the test is
-represented as a state machine, and assertions are encoded in the state transitions.
-
-[hypothesis-stateful]: https://hypothesis.readthedocs.io/en/latest/stateful.html#stateful-testing 
-
-```python
-#user.py
-class InMemoryUserRepository(UserRepository):
-    def __init__(self):
-        self._store = dict()
-
-    def get(self, id: int) -> User:
-        return self._store.get(id)
-
-    def save(self, user: User) -> None:
-        # if len(self._store) > 2:  # some non-trivial buggy code to trigger the error
-        #     return
-        self._store[user.id] = user
-
-# test_user_stateful.py
-import unittest
-from hypothesis.stateful import RuleBasedStateMachine, rule, Bundle
-from src.user import User, InMemoryUserRepository
-from test.user_generators import user_id_gen, user_gen
-
-class InMemoryUserRepositoryFSM(RuleBasedStateMachine):
-    def __init__(self):
-        super(InMemoryUserRepositoryFSM, self).__init__()
-        self.repository = InMemoryUserRepository()
-        self.model = dict()
-
-    users = Bundle('users')
-
-    @rule(target=users, user=user_gen)
-    def add_user(self, user):
-        return user
-
-    @rule(user=users)
-    def save(self, user: User):
-        self.model[user.id] = user
-        self.repository.save(user)
-
-    @rule(user=users)
-    def get(self, user):
-        assert self.repository.get(user.id) == self.model.get(user.id)
-
-
-InMemoryUserRepositoryTest = InMemoryUserRepositoryFSM.TestCase
-```
-
-This is actually a very short example - [full listing][stateful-full-listing] only contains the usual `unittest` 
-boilerplate. However, this test is capable of catching quite subtle implementation bugs that would be quite hard to 
-test otherwise - e.g. the one that is commented out in the repository code.
-
-[stateful-full-listing]: {{ page.github_link_base }}/test/test_user_stateful.py
-
-
-**Building to this level:** Almost inevitably requires a simpler model of the system-under-test - e.g. an in-memory 
-    implementation of repository - so such model needs to be created. On top of that, some sort of encoding of actions
-    is necessary (explicit command objects in scalacheck, rules in hypothesis, etc.), and then maybe pre-/post- 
-    conditions, pre-/post- invariants, action applicability rules ("can I apply action X if the state is Y") and 
-    more...\\
-**Pros:** Gives ability to capture bugs/inconsistent behavior that arise in the system in the course of use. Basically
-    generates _the tests themselves_.\\
-**Cons:** Requires significant change in thinking; has a subtle and somewhat hard-to-avoid (especially to new folks) 
-  caveats; significant up-front investment into defining generators.\\
-**Should I get here:** Actually, depends on the complexity of the state/behavior. With simple and straightforward state
-    and transitions, it might be actually faster and easier to go straight to the model-based/stateful testing as 
-    opposed to virtually any other testing technique. However, it mostly relies on being able to define a simpler model
-    of the system (similar to the "oracle" in prop-based testing) - which might be challenging in side-effect heavy
-    implementations.
-
-# Conclusion
-
-Just as everywhere else, there are no "silver bullet" with regards to "how sophisticated my test suite should be?". 
-There are multiple factors at play - from increasing confidence (which calls for 100% edge case coverage) to developer
-productivity (which reminds that tests does nothing to solve the business problem at hand) - and as such some balance 
-needs to be found. Unsurprisingly, balance differs between technologies, projects and teams - while small/simple 
-codebases might do just fine with a rudimentary or even non-existent test suites, up-front and maintenance investment 
-into more sophisticated test suites quite often pays off for a larger solutions with long lifetimes. 
-
-So, pick the right level - and hope this (loooong) post gave you something to make a more informed deciosion.
+[part2]: {% link _drafts/DRAFT-house-of-tests-part2.md %}
