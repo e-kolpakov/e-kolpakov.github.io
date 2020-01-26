@@ -261,6 +261,7 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
   - jekyll-titles-from-headings
+  - jemoji
 
 # Theme
 # ---------------------------------------------------------------------------------------
