@@ -98,7 +98,16 @@ doing it right (I've tested that!)
 
 ## No tests - no building at all
 
-![]({{ page.image_link_base }}/tent.jpg){:.image.inline-text-wrap.right}
+<div class="image-with-attribution inline-text-wrap right" markdown="1">
+
+![]({{ page.image_link_base }}/tent.jpg)
+
+[Image][orig-tent] by christoph-mueller; [Pixabay License][pixabay-licence]
+{:.image-attribution}
+
+[orig-tent]:https://pixabay.com/ru/photos/%D0%BF%D0%B0%D0%BB%D0%B0%D1%82%D0%BA%D0%B0-%D0%BB%D0%B5%D1%82%D0%BE-%D0%BA%D0%B5%D0%BC%D0%BF%D0%B8%D0%BD%D0%B3-%D0%BD%D0%BE%D1%80%D0%B2%D0%B5%D0%B3%D0%B8%D1%8F-552556/
+
+</div>
 
 Sometimes you really don't want to bother building a house - a temporary accomodation will work just as good. Think of
 a camping site - even though you need to have some roof over your head, you won't build a house - more likely just put 
@@ -133,7 +142,16 @@ especially when the infrastructure is still small and can be comprehended easily
 
 ## One method per test case - single-floor landed house (aka bungalow, aka cottage)
 
-![]({{ page.image_link_base }}/bungalow.jpg){:.image.inline-text-wrap.right}
+<div class="image-with-attribution inline-text-wrap right" markdown="1">
+
+![]({{ page.image_link_base }}/bungalow.jpg)
+
+[Image][orig-bungalow]; [![](/assets/icons/cc_licenses/CC0.svg){:.cc_icon}][cc0]  
+{:.image-attribution}
+
+[orig-bungalow]:http://www.publicdomainfiles.com/show_file.php?id=13519321219164
+
+</div>
 
 When we speak about testing, by default we mean this - tests are written and executed using some 3rd party testing 
 framework, such as JUnit (and friends/clones/forks), `unittest`, `specs`, etc.
@@ -185,7 +203,16 @@ dedicated method.
 
 ### Detour: same, but without test framework - a cabin 
 
-![]({{ page.image_link_base }}/cabin.jpg){:.image.inline-text-wrap.right}
+<div class="image-with-attribution inline-text-wrap right" markdown="1">
+
+![]({{ page.image_link_base }}/cabin.jpg)
+
+[Cabin House Light Bulbs][orig-cabin] by StockSnap; [Pixabay License][pixabay-licence]  
+{:.image-attribution}
+
+[orig-cabin]:https://pixabay.com/photos/cabin-house-light-bulbs-lights-2606781/
+
+</div>
 
 One other interesting approach is to save a bit on the setting up the test infra, and just use the built-in language 
 features. In such case, the module under test exposes a separate entrypoint - a dedicated method or special combination 
@@ -248,7 +275,17 @@ if __name__ == "__main__":
 
 ## Data-driven tests - a house with two floors
 
-![]({{ page.image_link_base }}/2-storey.jpg){:.image.inline-text-wrap.right}
+<div class="image-with-attribution inline-text-wrap right" markdown="1">
+
+![]({{ page.image_link_base }}/2-storey.jpg)
+
+[Image][orig-2-storey] by @pixabay
+[Pexels license][pexels-license]
+{:.image-attribution}
+
+[orig-2-storey]:https://www.pexels.com/photo/architecture-backyard-brickwalls-chimney-221024/
+
+</div>
 
 One thing about tests that is missed way too often is that _good_ suite of tests exercise not only "happy path" on 
 "common case", but also a range of cases with "normal" inputs, edge cases, and potential failures. Simply put, ideally
@@ -360,3 +397,8 @@ class TestFoo(unittest.TestCase):
 
 In this section we've covered the more "lightweight" approaches to testing. In the [next part][part2], we'll continue 
 to a more sophisticated - and powerful - techniques that require significant change in thinking about tests.
+
+[cc0]: https://creativecommons.org/share-your-work/public-domain/cc0/
+[pexels-license]: https://www.pexels.com/creative-commons-images/
+[pixabay-licence]: https://pixabay.com/ru/service/license/
+[cc-by-nc-sa-2]:https://creativecommons.org/licenses/by-nc-sa/2.0/

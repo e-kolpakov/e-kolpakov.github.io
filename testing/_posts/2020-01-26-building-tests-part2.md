@@ -19,7 +19,17 @@ This post consists of two parts:
 
 ## Generator-driven property-based tests - a mansion with an attic (and a garage in the basement)
 
-![]({{ page.image_link_base }}/mansion.jpg){:.image.inline-text-wrap.right}
+<div class="image-with-attribution inline-text-wrap right" markdown="1">
+
+![]({{ page.image_link_base }}/mansion.jpg)
+
+[Image][orig-mansion] by GerritHorstman
+[Pixabay Licence][pixabay-licence] 
+{:.image-attribution}
+
+[orig-mansion]:https://pixabay.com/ru/photos/%D0%BE%D1%81%D0%BE%D0%B1%D0%BD%D1%8F%D0%BA-%D0%B0%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0-%D0%B3%D0%BE%D1%80%D0%BE%D0%B4-%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-4320168/
+
+</div>
 
 The main idea at this "level" is quite simple and builds on the foundation of data-driven tests - one might call it 
 "data-driven on steroids" - instead of _defining_ the inputs developer tells the test framework how to _generate_ 
@@ -126,13 +136,25 @@ ample examples, were able to grasp the concepts and write very good suits of pro
   new teammembers harder (although, not much). On the other hand, there are significant and desireable advantages, as 
   well as some fun and professional pride from using such an advanced techinque.
 
-## Model-based testing (aka stateful testing) - a castle with a row (and a dungeon, and probably a dragon)
+## Model-based testing (aka stateful testing) - a castle with moat (and a dungeon, and probably a dragon)
+
+<div class="image-with-attribution inline-text-wrap right" markdown="1">
+
+![]({{ page.image_link_base }}/castle.jpg)
+
+["Stereotypical Castle complete with moat"][orig-castle] by Mark Denovich
+[![](/assets/icons/cc_licenses/cc-by-nc-sa.png){:.cc_icon}][cc-by-nc-sa-2] 
+{:.image-attribution}
+
+[orig-castle]:https://www.flickr.com/photos/denovich/2772278150
+
+</div>
 
 As with previous "levels", **stateful testing** builds on the previous one - generator-driven tests - and tries to 
 address an even more challenging task: checking system-under-test behavior under *series* of interactions.
 
 In a nutshell, the idea is simple - let's introduce classes that represent actions/operations performed on the SUT[^2] - 
-e.g. with our `Userrepository` example commands would be `UpdateUserName(...)` and `ReadUser(...)`. Since actions are 
+e.g. with our `UserRepository` example commands would be `UpdateUserName(...)` and `ReadUser(...)`. Since actions are 
 now representable as object instances (i.e. data, not just code), one now can define generators for the actions, 
 which obviously makes it possible to generate sequences of actions.
 
@@ -227,3 +249,6 @@ productivity (which reminds that tests does nothing to solve the business proble
 needs to be found. Unsurprisingly, balance differs between technologies, projects and teams - while small/simple 
 codebases might do just fine with a rudimentary or even non-existent test suites, investing up-front into more 
 sophisticated test suites quite often pays off for a larger solutions with long lifetimes. 
+
+[pixabay-licence]: https://pixabay.com/ru/service/license/
+[cc-by-nc-sa-2]:https://creativecommons.org/licenses/by-nc-sa/2.0/
