@@ -1,8 +1,8 @@
 ---
 layout: post
 title: Building tests - part 1
-github_link_base: https://github.com/e-kolpakov/e-kolpakov.github.io/tree/testing/_code/2020-01-20-building-tests
-image_link_base: /assets/img/2020-01-20-building-tests
+github_link_base: https://github.com/e-kolpakov/e-kolpakov.github.io/tree/testing/_code/2020-01-19-building-tests
+image_link_base: /assets/img/2020-01-19-building-tests
 ---
 
 There is a well-known and widespread unit/integration/function/end-to-end taxonomy of tests that describe _what_ is 
@@ -13,15 +13,13 @@ other - like floors in a building. Interestingly, "buildings" of all heights des
 pros and cons - taller "buildings" are generally harder to build and maintain, but pack more inner space for the same
 land area - so choosing the right "height" is important for long-term success.
 
-[part1]: {% post_url 2020-01-20-building-tests-part1 %}
-[part2]: {% post_url 2020-01-26-building-tests-part2 %}
-
-# Building tests - part 1
-
 This post consists of two parts:
 
-* Part 1 - sets up general background and covers the "simpler" approaches to testing (YOU ARE HERE)
+* [Part 1][part1] - sets up general background and covers the "simpler" approaches to testing (YOU ARE HERE).
 * [Part 2][part2] - continues on to talk about more sophisticated techniques necessary to build higher "buildings".
+
+[part1]: {% post_url testing/2020-01-19-building-tests-part1 %}
+[part2]: {% post_url testing/2020-01-26-building-tests-part2 %}
 
 ## "Levels" and Test Pyramid 
 

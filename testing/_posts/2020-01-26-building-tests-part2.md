@@ -1,22 +1,21 @@
 ---
 layout: post
 title: Building tests - part 2
-github_link_base: https://github.com/e-kolpakov/e-kolpakov.github.io/tree/testing/_code/2020-01-20-building-tests
-image_link_base: /assets/img/2020-01-20-building-tests
+github_link_base: https://github.com/e-kolpakov/e-kolpakov.github.io/tree/testing/_code/2020-01-19-building-tests
+image_link_base: /assets/img/2020-01-19-building-tests
 ---
 
 In this post, we continue on the topic (and examples) set up in the [Building tests - part 1][part1] to explore a more
 sophisticated (and heavyweight) approaches to testing.
 
-[part1]: {% post_url 2020-01-20-building-tests-part1 %}
-[part2]: {% post_url 2020-01-26-building-tests-part2 %}
-
-# Building tests - part 2
-
 This post consists of two parts:
 
 * [Part 1][part1] - sets up general background and covers the "simpler" approaches to testing.
-* Part 2 - continues on to talk about more sophisticated techniques necessary to build higher "buildings" (YOU ARE HERE).
+* [Part 2][part2] - continues on to talk about more sophisticated techniques necessary to build higher "buildings" 
+(YOU ARE HERE).
+
+[part1]: {% post_url testing/2020-01-19-building-tests-part1 %}
+[part2]: {% post_url testing/2020-01-26-building-tests-part2 %}
 
 ## Generator-driven property-based tests - a mansion with an attic (and a garage in the basement)
 
