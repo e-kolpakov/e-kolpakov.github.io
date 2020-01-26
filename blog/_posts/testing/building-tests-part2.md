@@ -1,15 +1,15 @@
 ---
 layout: post
 title: Building tests - part 2
-tags: [testing]
-github_link_base: https://github.com/e-kolpakov/e-kolpakov.github.io/tree/testing/_code/2019-11-12-house-of-tests
-image_link_base: /assets/img/2019-11-12-house-of-tests
+github_link_base: https://github.com/e-kolpakov/e-kolpakov.github.io/tree/testing/_code/2020-01-20-building-tests
+image_link_base: /assets/img/2020-01-20-building-tests
 ---
 
 In this post, we continue on the topic (and examples) set up in the [Building tests - part 1][part1] to explore a more
 sophisticated (and heavyweight) approaches to testing.
 
-[part1]: {% link _drafts/DRAFT-house-of-tests-part1.md %}
+[part1]: {% post_url 2020-01-20-building-tests-part1 %}
+[part2]: {% post_url 2020-01-26-building-tests-part2 %}
 
 # Building tests - part 2
 

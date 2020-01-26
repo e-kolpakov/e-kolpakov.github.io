@@ -1,9 +1,8 @@
 ---
 layout: post
 title: Building tests - part 1
-tags: [testing]
-github_link_base: https://github.com/e-kolpakov/e-kolpakov.github.io/tree/testing/_code/2019-11-12-house-of-tests
-image_link_base: /assets/img/2019-11-12-house-of-tests
+github_link_base: https://github.com/e-kolpakov/e-kolpakov.github.io/tree/testing/_code/2020-01-20-building-tests
+image_link_base: /assets/img/2020-01-20-building-tests
 ---
 
 There is a well-known and widespread unit/integration/function/end-to-end taxonomy of tests that describe _what_ is 
@@ -13,6 +12,9 @@ case" to a more advanced techniques - sometimes I call them "levels" of testing,
 other - like floors in a building. Interestingly, "buildings" of all heights deserve to exist as each "level" has its
 pros and cons - taller "buildings" are generally harder to build and maintain, but pack more inner space for the same
 land area - so choosing the right "height" is important for long-term success.
+
+[part1]: {% post_url 2020-01-20-building-tests-part1 %}
+[part2]: {% post_url 2020-01-26-building-tests-part2 %}
 
 # Building tests - part 1
 
@@ -360,5 +362,3 @@ class TestFoo(unittest.TestCase):
 
 In this section we've covered the more "lightweight" approaches to testing. In the [next part][part2], we'll continue 
 to a more sophisticated - and powerful - techniques that require significant change in thinking about tests.
-
-[part2]: {% link _drafts/DRAFT-house-of-tests-part2.md %}
