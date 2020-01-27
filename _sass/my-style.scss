@@ -5,8 +5,11 @@ $white: rgba(239, 239, 239, 1);
 $light-blue: rgba(191, 206, 239, 1);
 $blue: rgba(64, 83, 109, 1);
 $grey: rgba(68, 68, 68, 1);
+$light-grey: rgba(128, 128, 128, 1);
 $deep-blue: rgba(18, 32, 61, 1);
 $black: rgba(20, 20, 20, 1);
+
+$tiny: 0.5em;
 
 // Hydejack overrides
 .sidebar {
@@ -17,4 +20,33 @@ $black: rgba(20, 20, 20, 1);
 
 .font-active {
   background-color: $white;
+}
+
+.image-with-attribution {
+    &.inline-text-wrap {
+        width: 14rem;
+        margin: 0rem 1rem 1rem 1rem;
+        &.right {
+            float: right;
+        }
+        &.left {
+            float: left;
+        }
+    }
+
+    & > .image-attribution {
+        font-size: $tiny;
+        color: $light-grey;
+        & .cc_icon {
+            height: 2.5em;
+        }
+    }
+}
+
+.long-code {
+    .highlight {
+        overflow-y: auto;
+        overflow-x: hidden;
+        max-height: 30rem;
+    }
 }
