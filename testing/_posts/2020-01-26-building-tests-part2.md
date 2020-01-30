@@ -6,7 +6,7 @@ image_link_base: /assets/img/2020-01-19-building-tests
 ---
 
 In this post, we continue on the topic (and examples) set up in the [Building tests - part 1][part1] to explore a more
-sophisticated and pwoerful - yet more heavyweight - approaches to testing.
+sophisticated and powerful - yet more heavyweight - approaches to testing.
 
 This post consists of two parts:
 

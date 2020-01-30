@@ -51,7 +51,7 @@ but three examples:
 2. A method on a class that takes a parameter
 3. A class with a dependency.
 
-For brewity though, I'll use only small subset of them in the post text, but full listings can be found at 
+For brevity though, I'll use only small subset of them in the post text, but full listings can be found at 
 [GitHub][examples].
 
 [examples]: {{ page.github_link_base }}
