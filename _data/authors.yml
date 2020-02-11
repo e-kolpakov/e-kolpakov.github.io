@@ -27,7 +27,7 @@ eugeny:
   # Social media icons in sidebar.
   # Comment/uncommet to show/hide. Rearrange to change the order in which they appear.
   social:
-#    twitter:         jekyllrb
+    twitter:         EugenyKolpakov
     github:          e-kolpakov
     # download:        <url>
     email:           eugeny.kolpakov@gmail.com
