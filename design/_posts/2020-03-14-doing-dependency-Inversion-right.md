@@ -2,7 +2,7 @@
 layout: post
 title: Doing Dependency Inversion right
 tags: [design-principles]
-image_link_base: /assets/img/DRAFT-Doing-DI-Right
+image_link_base: /assets/img/2020-03-14-doing-dependency-Inversion-right
 ---
 
 Dependency Injection is a well-known pattern and de-facto standard for implementing a [Depedncency Inversion
