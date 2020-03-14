@@ -5,15 +5,15 @@ tags: [design-principles]
 image_link_base: /assets/img/2020-03-14-doing-dependency-Inversion-right
 ---
 
-Dependency Injection is a well-known pattern and de-facto standard for implementing a [Depedncency Inversion
+Dependency Injection is a well-known pattern and de-facto standard for implementing a [Dependency Inversion
 Principle][DIP]. Most modern frameworks have some level of support for Dependency Injection - from weaving the 
 application via public setters at runtime using XML as a spec (e.g. [Java Spring][spring]), to compile-time 
-constructor injection(e.g. [macwire](https://github.com/softwaremill/macwire)). However, while doing most of
+constructor injection (e.g. [macwire](https://github.com/softwaremill/macwire)). However, while doing most of
 the heavy lifting, these tools and frameworks leave capturing the more sophisticated and valuable promises of DIP 
 to the developers. Sadly, most of the time the result is.... _suboptimal_ :smile: - that is to say it is not completely
 wrong, but could have been better. This shortcoming is subtle, but "getting it right" often solves or even removes
 a lot of other questions/concerns - including some that spawn "both implementations are fine, let's discuss 
-which one to choose till the Universe's thermodynamic death" discussions.
+which one to choose till the thermodynamic death of the Universe" discussions.
 
 [DIP]: https://web.archive.org/web/20110714224327/http://www.objectmentor.com/resources/articles/dip.pdf
 [spring]: https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#beans-factory-metadata
@@ -23,9 +23,9 @@ which one to choose till the Universe's thermodynamic death" discussions.
 
 To recap, the precise definition of DIP is as follows ([see page 6][DIP]):
 
-> 
-A. High-level modules should not depend on low-level modules. Both should depend on abstractions (e.g. interfaces).
-B. Abstractions should not depend on details. Details (concrete implementations) should depend on abstractions.
+> A. High-level modules should not depend on low-level modules. Both should depend on abstractions (e.g. interfaces).
+>
+> B. Abstractions should not depend on details. Details (concrete implementations) should depend on abstractions.
 
 To make it more concrete, let's consider the classical "layered" architecture[^1].
 
@@ -52,13 +52,14 @@ and "application" should not depend on it - and draws a new diagram:
 [^1]: The same logic is valid for the more advanced architectures too, (e.g. Hexagon), "layered" is chosen for 
     simplicity and because "everyone knows it".
     
-... or maybe the team has started with DIP in mind right away, so that's their actual architecture diagram from the get-go.
-In any case, the next step is to implement it on code - and this is where that _suboptimality_ I'm talking about creeps in.
+... or maybe the team has started with DIP in mind right away, so that's their actual architecture diagram from the 
+get-go. In any case, the next step is to implement it in code - and this is where that _suboptimality_ I'm talking
+about creeps in.
 
 # How to do DIP in code 
 
 Ok, both sentences in DIP definition can be boiled down to "interfaces should depend on interfaces, 
-implementations should depend on interfaces (and not other implementations)". That's easy, we just convert 
+implementations should depend on interfaces (and not other implementations)". That's easy - we just convert 
 
 
 ```java
@@ -102,7 +103,8 @@ public class InMemoryClientRepository implements IClientRepository { void save(C
 Can you spot the problem? There is one[^2].
 
 Just in case it's not apparent - `domain.ClientService` depends on `infrastructure.IClientRepository`, which makes the
-app look more like the first diagram. What's worse, is that the dependency direction two-way:
+app look more like the first diagram, whereas we wanted the second one. What's worse - the dependency not only goes in
+the undesired direction but actually is two-way:
 
 * `domain.ClientService` depends on `infrastructure.IClientRepository`
 * `infrastructure.IClientRepository` -> `domain.Client`
