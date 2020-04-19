@@ -2,7 +2,7 @@
 layout: post
 title: The three models in your application
 tags: [design-principles]
-image_link_base: /assets/img/draft-three-models
+image_link_base: /assets/img/2020-04-19-three-models
 ---
 
 It wouldn't be a major overstatement to say that majority of the applications - at least in the startup and enterprise
@@ -21,8 +21,8 @@ Before we delve deeper, let me introduce some "temporary" terminology - for brev
 objects, methods, data structures and algorithms that make the application tick.
 
 * **Public** model[^1] - everything that is available to the clients of the system, including other 
-services/applications and users. This covers Data Transfer Objects for APIs, models for user interfaces, messages published to the queues, 
-data put in caches with "public" access, and so on.
+services/applications and users. This covers Data Transfer Objects for APIs, models for user interfaces, messages 
+published to the queues, data put in caches with "public" access, and so on.
 
 * **Persistence** model[^1] - means everything that is stored and is not accessible to the clients - e.g. saved to DBs, 
 caches, disks or cloud storage (e.g. AWS S3). This data is often extracted into an analytics database(s), 
