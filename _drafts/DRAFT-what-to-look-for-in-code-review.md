@@ -67,13 +67,17 @@ so code reviews fall into the "art" bucket.
 What we're trying to do is to find the balance between effort spent in code reviews (both on the reviewer and the 
 author side), and the "improvement" of the code that comes from it. Again, a lot is said on the topic already, and I 
 won't repeat the "prerequisite" things like "define the team norms", "agree on the code style", "set up a framework for 
-reviews" and so on.
+reviews" and so on. There's a very good and concise write up by one of my former colleagues: 
+["How to prevent code reviews from slowing down your team"][how-to-prevent-code-reviews-from-slowing-down-your-team],
+definitely check it out.
 
 There are three techniques that (in my opinion) are the most overlooked, and the most efficient:
 
 * Focus - do the important things, don't do the unimportant ones (sincerely yours, Captain Obvious).
 * Automate - let the computers run the ~~world~~ review.
 * Distribute and delegate - you're not doing it alone.
+
+[how-to-prevent-code-reviews-from-slowing-down-your-team]: http://www.sheshbabu.com/posts/how-to-prevent-code-reviews-from-slowing-down-your-team/
 
 ## Focus
 
