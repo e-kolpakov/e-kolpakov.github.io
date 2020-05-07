@@ -197,7 +197,7 @@ In essence, I'm talking about distributing reviewing different aspects of the co
 expertise. This allows more senior people to focus on the more impactful parts, and still have more junior folks to
 play an integral and important role in the code review process. Simply put
 
-**Lead/Stuff/Principal** engineers review the high-level aspects (security, design, etc. - see the "Critical" list in 
+**Lead/Staff/Principal** engineers review the high-level aspects (security, design, etc. - see the "Critical" list in 
 the [Focus][focus] section). 
 
 **Senior/Middle** engineers dig down and watch for algorithmic complexity, bugs, alternative implementation, etc.; 
