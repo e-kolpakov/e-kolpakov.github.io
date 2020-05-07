@@ -220,5 +220,9 @@ reducing the load on them can help in multiple ways - from more stuff built by t
 public presence and intellectual property building. In this post, I've described techniques that helped me a lot to
 reduce the load on myself - focus, automation and delegation - and I hope you find it useful.
 
+Thanks for reading, and let let me know what you think on [Twitter][twitter-post-link].
+
+[twitter-post-link]: https://twitter.com/EugenyKolpakov/status/1258291344146968576
+
 [cc0]: https://creativecommons.org/share-your-work/public-domain/cc0/
 [cc-by-sa]: https://creativecommons.org/licenses/by-sa/3.0
