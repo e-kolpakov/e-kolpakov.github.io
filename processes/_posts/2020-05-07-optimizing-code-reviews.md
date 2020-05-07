@@ -1,8 +1,8 @@
 ---
 layout: post
-title: What to look for in the code review
+title: Optimizing code reviews
 tags: [development-processes]
-image_link_base: /assets/img/DRAFT-what-to-look-for-in-code-review
+image_link_base: /assets/img/2020-05-07-optimizing-code-reviews
 ---
 
 Code reviews are an integral part of modern software development workflow and a highly debated one. A lot is said on
