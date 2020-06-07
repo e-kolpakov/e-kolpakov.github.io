@@ -8,6 +8,8 @@ series_sequence_nr: 2
 
 TBD
 
+[Back to Table of Contents]({% link design/eventsourcing-series.md %}#table-of-contents)
+
 # Declared goals
 
 Functional:

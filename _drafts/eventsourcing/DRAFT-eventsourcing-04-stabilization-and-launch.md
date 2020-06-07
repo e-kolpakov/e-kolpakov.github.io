@@ -8,6 +8,8 @@ series_sequence_nr: 4
 
 TBD
 
+[Back to Table of Contents]({% link design/eventsourcing-series.md %}#table-of-contents)
+
 # Interesting things that went bad before the launch - and how we fixed them
 
 The goal here is not to walk through all the issues, but highlight the relevant ones. I.e. "reservations skewed toward

@@ -8,6 +8,8 @@ series_sequence_nr: 7
 
 TBD
 
+[Back to Table of Contents]({% link design/eventsourcing-series.md %}#table-of-contents)
+
 # Other thoughts
 
 ## Pick serialization carefully

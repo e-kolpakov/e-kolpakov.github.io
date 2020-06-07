@@ -8,6 +8,8 @@ series_sequence_nr: 1
 
 TBD
 
+[Back to Table of Contents]({% link design/eventsourcing-series.md %}#table-of-contents)
+
 # Problem background
 
 RM's mode of operations can be described as "guaranteed scheduled delivery" - customer selects a two-hour slot, and 

@@ -10,8 +10,9 @@ What is this: page that captures all the posts in the series with links and what
 
 # Table of contents
 
+{% assign posts = site.tags[page.series_tag] %}
+{% if posts %}
 {% assign series_posts = site.tags[page.series_tag] | sort: 'series_sequence_nr' %}
-
 <ul>
 {% for post in series_posts %}
   <li>
@@ -19,6 +20,9 @@ What is this: page that captures all the posts in the series with links and what
   </li>
 {% endfor %}
 </ul>
+{% else %}
+No posts in this series so far - come back soon!
+{% endif %}
 
 # Key takeaways
 

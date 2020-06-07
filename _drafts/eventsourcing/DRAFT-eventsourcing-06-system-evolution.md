@@ -8,6 +8,8 @@ series_sequence_nr: 6
 
 TBD
 
+[Back to Table of Contents]({% link design/eventsourcing-series.md %}#table-of-contents)
+
 # Evolving the system (and how design choices helped)
 
 ## Multidrops project

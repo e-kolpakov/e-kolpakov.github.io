@@ -8,6 +8,8 @@ series_sequence_nr: 3
 
 TBD
 
+[Back to Table of Contents]({% link design/eventsourcing-series.md %}#table-of-contents)
+
 # Initial implementation
 
 Akka cluster + Sharding + Persistence. Each entity is encapsulated in an actor. Actors are sharded across the cluster,
