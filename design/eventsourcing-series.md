@@ -10,6 +10,8 @@ What is this: page that captures all the posts in the series with links and what
 
 # Table of contents
 
+This table is automatically updated when new posts are published.
+
 {% assign posts = site.tags[page.series_tag] %}
 {% if posts %}
 {% assign series_posts = site.tags[page.series_tag] | sort: 'series_sequence_nr' %}
