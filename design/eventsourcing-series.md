@@ -1,13 +1,9 @@
 ---
 layout: page
-title: "TBD: Eventsourcing series"
+title: "Journey through eventsourcing"
 tags: ["design principles"]
-image_link_base: /assets/img/DRAFT-eventsourcing
 series_tag: "eventsourcing-series-2020"
 ---
-
-What is this: page that captures all the posts in the series with links and whatnot
-
 # Table of contents
 
 This table is automatically updated when new posts are published.
@@ -25,7 +21,3 @@ This table is automatically updated when new posts are published.
 {% else %}
 No posts in this series so far - come back soon!
 {% endif %}
-
-# Key takeaways
-
-Include key takeaways from each post here

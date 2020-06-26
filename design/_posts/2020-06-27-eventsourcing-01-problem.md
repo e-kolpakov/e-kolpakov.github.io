@@ -1,8 +1,9 @@
 ---
 layout: post
-title: "Journey with eventsourcing: Part 1 - problem background and analysis"
+title: "Journey through eventsourcing: Part 1 - problem background and analysis"
+series_tag: eventsourcing-series-2020
 tags: ["design principles", eventsourcing-series-2020]
-image_link_base: /assets/img/eventsourcing/DRAFT-eventsourcing-01-problem
+image_link_base: /assets/img/eventsourcing/2020-06-27-eventsourcing-01-problem
 series_sequence_nr: 1
 ---
 
@@ -43,7 +44,11 @@ So, I invite you all for a ride :).
 <ul>
 {% for post in series_posts %}
   <li>
-    <a href="{{ post.url }}">{{ post.title }}</a> - <span class="date">{{ post.date | date: "%B %-d, %Y"  }}</span>
+    {% if page.url == post.url %}
+        {{ post.title }} - <span class="date">{{ post.date | date: "%B %-d, %Y"  }}</span>
+    {% else %}
+        <a href="{{ post.url }}">{{ post.title }}</a> - <span class="date">{{ post.date | date: "%B %-d, %Y"  }}</span>
+    {% endif %}
   </li>
 {% endfor %}
 </ul>
