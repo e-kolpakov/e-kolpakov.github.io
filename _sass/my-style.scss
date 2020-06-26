@@ -8,6 +8,7 @@ $grey: rgba(68, 68, 68, 1);
 $light-grey: rgba(128, 128, 128, 1);
 $deep-blue: rgba(18, 32, 61, 1);
 $black: rgba(20, 20, 20, 1);
+$min-width-for-inline-images: 540px;
 
 $tiny: 0.5em;
 
@@ -27,17 +28,6 @@ $tiny: 0.5em;
 }
 
 .image-with-attribution {
-    &.inline-text-wrap {
-        width: 14rem;
-        margin: 0rem 1rem 1rem 1rem;
-        &.right {
-            float: right;
-        }
-        &.left {
-            float: left;
-        }
-    }
-
     & > .image-attribution {
         font-size: $tiny;
         color: $light-grey;
@@ -53,5 +43,20 @@ $tiny: 0.5em;
         overflow-y: auto;
         overflow-x: hidden;
         max-height: 30rem;
+    }
+}
+
+@media (min-width: $min-width-for-inline-images) {
+    .image-with-attribution {
+        &.inline-text-wrap {
+            width: 14rem;
+            margin: 0rem 1rem 1rem 1rem;
+            &.right {
+                float: right;
+            }
+            &.left {
+                float: left;
+            }
+        }
     }
 }
