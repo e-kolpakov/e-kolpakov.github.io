@@ -26,13 +26,13 @@ manage application state. This wasn't an easy ride though, and making such a cho
 solution - so there was quite a bit of learning and discoveries for me and my team. Some of those
 learnings I've already tried to share in meetups. One day I thought it might be good to put them into a written form 
 and more systemically - this is how this post has started... when it grew beyond ~600 lines
-of markdown then I figured that there's a lot to talk about :).
+of markdown then I figured that there's a lot to talk about :smile:.
 
 The obvious thing to do was to split it into multiple posts - and that's what I've done. Right now I've plotted a course
 for six or seven posts in the series, each covering different parts of the journey - from inception to implementation, 
 to launch and to evolution - but as they say "no plan survives the first encounter with the enemy". 
 
-So, I invite you all for a ride :).
+So, I invite you all for a ride!
 
 # Series navigation
 
