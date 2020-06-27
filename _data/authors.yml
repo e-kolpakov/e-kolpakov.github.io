@@ -9,7 +9,7 @@ eugeny:
   # Used at the bottom of each page and at the top of the `about` layout
   # Markdown enabled, can use multiple paragraphs (enabled by `|`)
   about:             |
-    I'm a Lead Software Engineer at Redmart on the Capacity Management and Routing team.
+    I'm a Software Engineer at Facebook on the Commerce Engineering team.
     My major interests are functional programming, building scalable, reliable and
     fault-tolerant systems, event sourcing and advanced testing techniques.
     I spend my free time with my wife and two daughters playing board games,
