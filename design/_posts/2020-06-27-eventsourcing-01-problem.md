@@ -5,6 +5,7 @@ series_tag: eventsourcing-series-2020
 tags: ["design principles", eventsourcing-series-2020]
 image_link_base: /assets/img/eventsourcing/2020-06-27-eventsourcing-01-problem
 series_sequence_nr: 1
+key_takeaway: "eventsourcing/01-problem-key-takeaway.md"
 ---
 
 Eventsourcing is probably among the most controversial and tricky design principles. In "classical" application design, 
@@ -253,6 +254,11 @@ detail in one of the future posts, but for now, it is sufficient to say that the
 of each entity (capacity counter) across all the systems instances at all times.
 
 [^3]: or, more often, from the last persisted state snapshot
+
+# Key takeaways
+
+{% include {{page.key_takeaway}} %}
+
 
 # Wrap up
 
