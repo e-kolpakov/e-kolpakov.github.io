@@ -6,6 +6,7 @@ tags: ["design principles", eventsourcing-series-2020]
 image_link_base: /assets/img/eventsourcing/2020-06-27-eventsourcing-01-problem
 series_sequence_nr: 1
 key_takeaway: "eventsourcing/01-problem-key-takeaway.md"
+image: /assets/img/eventsourcing/2020-06-27-eventsourcing-01-problem/cover.png
 ---
 
 Eventsourcing is probably among the most controversial and tricky design principles. In "classical" application design,
