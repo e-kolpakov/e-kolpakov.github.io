@@ -173,7 +173,7 @@ Image source: [Requirement][requirement-orig] - [Nick Youngson][Nick-Youngson] v
 [![](/assets/icons/cc_licenses/cc-by-sa.svg){:.cc_icon}][cc-by-sa-3.0]
 {:.image-attribution}
 
-[requirement-oring]: http://www.picserver.org/highway-signs2/r/requirement.html
+[requirement-orig]: http://www.picserver.org/highway-signs2/r/requirement.html
 </div>
 
 The problem is inherently simple - to demonstrate it, I'll put it as a bullet list:
