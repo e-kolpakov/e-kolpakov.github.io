@@ -8,13 +8,13 @@ series_sequence_nr: 1
 key_takeaway: "eventsourcing/01-problem-key-takeaway.md"
 ---
 
-Eventsourcing is probably among the most controversial and tricky design principles. In "classical" application design, 
-the state is written to the persistence store, mutated, fetched from DB on virtually every operation; while events that 
-cause state changes are transient and discarded the moment the change is applied - unless explicitly caught, of course. 
-In eventsourcing, to the contrary, events are written to the store, never mutated and read from the DB on rare 
-occasions; while the state is transient and obtained from the log of events - unless explicitly saved. To some extent, 
-eventsourcing is like the "classical" approach through the looking glass. One day I and my team embarked on a journey 
-through it - and this post is the beginning of our story.
+Eventsourcing is probably among the most controversial and tricky design principles. In "classical" application design,
+the state is written to the persistence store, mutated, and fetched from the DB on virtually every operation, while 
+events causing state changes are transient and discarded the moment the change is applied. In eventsourcing, to the 
+contrary, events are written to the store, never mutated, and read from the DB on rare occasions; while the state is 
+transient and obtained from the log of events. To some extent, eventsourcing is like a mirror reflection of the 
+"classical" approach. One day I and my team embarked on a journey through it - and this post is the beginning 
+of the story.
 
 # Preface
 
