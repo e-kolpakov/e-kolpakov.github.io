@@ -40,23 +40,7 @@ So, I invite you all for a ride!
 
 [Back to the series overview]({% link design/eventsourcing-series.md %})
 
-{% assign posts = site.tags[page.series_tag] %}
-{% if posts %}
-{% assign series_posts = site.tags[page.series_tag] | sort: 'series_sequence_nr' %}
-<ul>
-{% for post in series_posts %}
-  <li>
-    {% if page.url == post.url %}
-        {{ post.title }} - <span class="date">{{ post.date | date: "%B %-d, %Y"  }}</span>
-    {% else %}
-        <a href="{{ post.url }}">{{ post.title }}</a> - <span class="date">{{ post.date | date: "%B %-d, %Y"  }}</span>
-    {% endif %}
-  </li>
-{% endfor %}
-</ul>
-{% else %}
-No posts in this series so far - come back soon!
-{% endif %}
+{% include infra/series-navigation.md series_tag="eventsourcing-series-2020" %}
 
 # Problem background
 
@@ -259,7 +243,6 @@ of each entity (capacity counter) across all the systems instances at all times.
 # Key takeaways
 
 {% include {{page.key_takeaway}} %}
-
 
 # Wrap up
 
