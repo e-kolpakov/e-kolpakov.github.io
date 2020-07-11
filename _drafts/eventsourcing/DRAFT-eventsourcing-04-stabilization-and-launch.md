@@ -61,4 +61,6 @@ that are necessary to serve, rather than bring up everything at once.
 
 # Launch
 
-TBD: Feature switches, initial results, enabling in production, quick follow ups (there were none, if I recall right?)
+TBD: Feature switches, initial results, support scripts (state rollback, sharding coordintor reset, "replaying" 
+production requests from RDS, etc.)
+enabling in production, quick follow ups (there were none, if I recall right?)
