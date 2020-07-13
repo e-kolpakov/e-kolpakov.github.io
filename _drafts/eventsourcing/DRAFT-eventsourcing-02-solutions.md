@@ -8,9 +8,15 @@ key_takeaway: "eventsourcing/02-designing-a-solution-key-takeaway.md"
 image: /assets/img/eventsourcing/DRAFT-eventsourcing-02-designing-a-solution/cover.png
 ---
 
-TBD
 
-[Back to Table of Contents]({% link design/eventsourcing-series.md %}#table-of-contents)
+
+{% include eventsourcing/dislaimer.md %}
+
+# Series navigation
+
+[Back to the series overview]({% link design/eventsourcing-series.md %})
+
+{% include infra/series-navigation.md series_tag="eventsourcing-series-2020" %}
 
 # Recap: Declared project goals
 
@@ -240,9 +246,21 @@ Kafka cluster, so it was not an option. The remark about "request-response" comm
 
 # Final architecture
 
-Let's finally talk about the architecture we actually used and defended at that design review session(s).
+Let's finally talk about the architecture we actually used and defended at that design review session(s). At a very high
+level it looked like this:
 
-**TODO: diagram of the architecture - "replicate" lightbends' cluster diagrams?** =============================================================================================================================================
+![Diagram describing the high-level system architeture.
+There are two service instances, each of which has two components - HTTP REST API and "Pool manager". Pool managers 
+control pool entitites, and each manager has a different set of entities: manager in service instance 1 has 1st, 3rd, 
+4th and 8th pool, while manager in service instance 2 has 2nd, 5th, 6th and 7th pool. The allocation of pools 
+to managers is arbitrary, but having multiple instances of the same pool is not allowed.
+On the top, there is an extermal Load Balancer that connects to the HTTP REST APIs inside the service instances.
+At the bottom, there is a "Persistent Event & Snapshot Store" database. Service instances connect to the store to 
+read and write events and snapshots.
+Service instances form a cluster, and exchange "Cluster messages".
+]({{ page.image_link_base }}/high_level_architecture.png)
+
+
 
 **Consistency:** We would represent each capacity pool as a single entity. In order to achieve the desired consistency 
 model, there will be **at most one instance** of each entity **across all the system nodes** - this will completely 
@@ -257,6 +275,10 @@ Second, the system will detect such cases, and redistribute the affected entitie
 it requires nodes to be aware of each other, and basically form a cluster. So, if a node crash, **some entities will 
 become unavailable for some time, but will be automatically recovered within a short period of time**.
 
+**Request handling:** All instances of the system will expose the same REST API and are capable to serve both read and 
+write requests. In case the request targets an entity that is located at the other node, the "internal" call between 
+the nodes will be handled transparently to the client.  
+
 **Performance:** Each entity will have it's full state available in-memory. There will be no external data sources to
 fetch, or external systems to interact with during handling the request, except making persistence calls when state 
 changes. It makes possible answering read-only requests purely from memory, and write requests will only need to 
@@ -267,11 +289,11 @@ update, the entity will only **append an event** that caused the change. This wi
 is changed, so it also serves as some sort of write-ahead log - if an event is persisted successfully it becomes a fact.
 The entity's event log is only read when the entity is (re)started - in order to rebuild the in-memory state. Further,
 to speed up recovery, entities will persist a snapshot of the state from time to time, so there's an upper bound on the 
-number of events to be processed during recovery.  
+number of events to be processed during recovery.
 
 [^4]: Each node will run multiple entities, but there will be only one instance of certain entity. I.e. node1 runs 
     `A`, `Y` and `Z` and node2 runs `X`, `B` and `C`. In other words, entity allocation to node is exclusive - as long
-    as it runs _somewhere_, no other node is allowed to have a copy of the entity.
+    as entity is allocated to _any node_, no other node is allowed to have another copy of the same entity.
 
 ## CAP theorem
 
