@@ -8,9 +8,7 @@ series_sequence_nr: 1
 key_takeaway: "eventsourcing/01-problem-key-takeaway.md"
 image: /assets/img/eventsourcing/2020-06-27-eventsourcing-01-problem/cover.png
 ---
-
 {% include infra/series-nav-link-variables series_tag="eventsourcing-series-2020" series_sequence_nr=page.series_sequence_nr %}
-
 Eventsourcing is probably among the most controversial and tricky design principles. In "classical" application design,
 the state is written to the persistence store, mutated, and fetched from the DB on virtually every operation, while 
 events causing state changes are transient and discarded the moment the change is applied. In eventsourcing, to the 

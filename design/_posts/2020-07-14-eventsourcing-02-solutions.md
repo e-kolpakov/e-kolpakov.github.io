@@ -9,7 +9,6 @@ image: /assets/img/eventsourcing/2020-07-14-eventsourcing-02-solutions/cover.png
 previous: design/2020-06-27-eventsourcing-01-problem
 ---
 {% include infra/series-nav-link-variables series_tag="eventsourcing-series-2020" series_sequence_nr=page.series_sequence_nr %}
-
 [The previous post][previous-post] left us at the beginning of the design phase - I and my team have gathered 
 the functional and non-functional requirements for the system, and we were ready to start designing a solution for 
 the problem. In this phase of our journey, we needed to come up with an architecture that would allow us to achieve 
