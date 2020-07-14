@@ -9,6 +9,8 @@ key_takeaway: "eventsourcing/01-problem-key-takeaway.md"
 image: /assets/img/eventsourcing/2020-06-27-eventsourcing-01-problem/cover.png
 ---
 
+{% include infra/series-nav-link-variables series_tag="eventsourcing-series-2020" series_sequence_nr=page.series_sequence_nr %}
+
 Eventsourcing is probably among the most controversial and tricky design principles. In "classical" application design,
 the state is written to the persistence store, mutated, and fetched from the DB on virtually every operation, while 
 events causing state changes are transient and discarded the moment the change is applied. In eventsourcing, to the 
@@ -253,7 +255,8 @@ high availability and "strong" consistency guarantees. To achieve the first two,
 state into memory, and use eventsourcing principle to alleviate the challenges it poses, and also to achieve 
 consistency and availability targets.
 
-In the next post, we'll take a closer look at the final solution architecture, as well as some other architectures and
+In {% include infra/conditional-link.md label="the next post" url=next_post %}, 
+we'll take a closer look at the final solution architecture, as well as some other architectures and
 approaches that were considered in the design phase, but eventually rejected.   
 
 [cc-by-sa-2.0]: https://creativecommons.org/licenses/by-sa/2.0/deed.en
@@ -261,3 +264,4 @@ approaches that were considered in the design phase, but eventually rejected.
 
 [Nick-Youngson]: http://www.nyphotographic.com/
 [Alpha-Stock-Images]: http://alphastockimages.com/
+[next-post]: {{ next_post }}
