@@ -8,6 +8,12 @@ series_sequence_nr: 3
 
 TBD
 
+IDEA: the previous post might left you wondering - "looks like you guys just traded implementing locks and caches, 
+to implementing clustering, automatic recovery and failure detection - and those are more complex problems". This is
+true - all these concerns would need to be handled in order for the app to work. However, we haven't had to build them
+ourselves - and in fact our decision making in the architecture phase was based on the fact that there is a library
+that handles all these things for us - Akka.
+
 [Back to Table of Contents]({% link design/eventsourcing-series.md %}#table-of-contents)
 
 # Initial implementation
