@@ -2,14 +2,13 @@
 layout: post
 title: "Journey through eventsourcing: Part 2 - designing a solution"
 tags: ["design principles", eventsourcing-series-2020]
-image_link_base: /assets/img/eventsourcing/DRAFT-eventsourcing-02-designing-a-solution
+image_link_base: /assets/img/eventsourcing/2020-07-14-eventsourcing-02-solutions
 series_sequence_nr: 2
 key_takeaway: "eventsourcing/02-designing-a-solution-key-takeaway.md"
-image: /assets/img/eventsourcing/DRAFT-eventsourcing-02-designing-a-solution/cover.png
+image: /assets/img/eventsourcing/2020-07-14-eventsourcing-02-solutions/cover.png
 previous: design/2020-06-27-eventsourcing-01-problem
 ---
-
-{% capture previous_post %}{% post_url design/2020-06-27-eventsourcing-01-problem %}{% endcapture %}
+{% include infra/series-nav-link-variables series_tag="eventsourcing-series-2020" series_sequence_nr=page.series_sequence_nr %}
 
 [The previous post][previous-post] left us at the beginning of the design phase - I and my team have gathered 
 the functional and non-functional requirements for the system, and we were ready to start designing a solution for 
@@ -19,7 +18,7 @@ To do so, we spend some time brainstorming, evaluating, and experimenting with m
 I'll touch base on some "head-first" architectures, why have we rejected them, as well as our final approach and the 
 reasons for us to pick it.
 
-[previous-post]: {{ previous_post }} 
+[previous-post]: {{ prev_post }} 
 
 {% include eventsourcing/disclaimer.md %}
 
@@ -342,7 +341,8 @@ availability, or performance of the solution. Eventsourcing approach, despite be
 inherently complex, offered a clear way to achieve the goals, and set up a firm ground for further evolution 
 and scaling of the system.
 
-In the next post, we will explore the implementation of the system, concrete technology choices, tactical design 
+In {% include infra/conditional-link.md label="the next post" url=next_post %}, 
+we will explore the implementation of the system, concrete technology choices, tactical design 
 decisions and, most importantly, the role of the eventsourcing patterns and techniques to achieve the desired goals.
 
 [cc0]: https://creativecommons.org/share-your-work/public-domain/cc0/
