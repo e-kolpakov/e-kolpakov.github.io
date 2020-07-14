@@ -36,6 +36,8 @@ to launch and to evolution - but as they say "no plan survives the first encount
 
 So, I invite you all for a ride!
 
+{% include eventsourcing/disclaimer.md %}
+
 # Series navigation
 
 [Back to the series overview]({% link design/eventsourcing-series.md %})

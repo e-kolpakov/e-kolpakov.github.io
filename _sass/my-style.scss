@@ -57,6 +57,10 @@ $tiny: 0.5em;
             &.left {
                 float: left;
             }
+
+            &.wider {
+                width: 20rem;
+            }
         }
     }
 }
