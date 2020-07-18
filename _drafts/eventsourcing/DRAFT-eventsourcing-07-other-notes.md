@@ -32,9 +32,3 @@ for them as long as they use it only for RPC and maintain the versioning of API 
 
 Not that straightforward to achieve in practice - need to know how to handle all the versions.
 Never needed in practice though (although we didn't have to build new read-sides from the beginning of time).
-
-## Other risks
-
-Was able to corrupt Akka Sharding coordinator state once - only way to restore service is to manually wipe coordinator's
-persistence. On a good side, there's a "script" shipped with Akka to do so, and no "user data" is actually lost - 
-coordinator only controls where entities are placed, so just starting anew is a good recovery strategy.
