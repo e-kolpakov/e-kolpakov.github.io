@@ -17,7 +17,7 @@ third-party library that handles all these things for us - [Akka][akka]. Let's t
 the project goals.
 
 This chapter will be more concrete, with lots of diagrams and some links to the code examples (not the actual code 
-though - it's a part of an intellectual property and must not be disclosed). So,
+though - it's a part of the intellectual property and must not be disclosed). So,
 
 ![let's get dangerous]({{ page.image_link_base }}/darkwing_duck.jpg)
 
@@ -87,7 +87,21 @@ Web/HTTP/REST/etc. requests, and we wanted it to be structured around applicatio
 Here's what we ended up with:
 
 [
-    ![Intentionally overwhelming diagram - we'll gradully build it further]({{ page.image_link_base }}/high_level_architecture@1x.svg)
+    ![
+        Intentionally overwhelming diagram - we'll gradually build it in the following sections.
+        There are two (and potentially more) service instances. Instances host multiple components - most notable are
+        HTTP RPC API - backed by Akka HTTP, and Cluster Components - backed by Akka Cluster Sharding and 
+        Akka Cluster Distributed Data.
+        Akka Cluster Sharding (or simply Sharding) hosts multiple shard regions, each containing multiple Actors.
+        Service instances exchange "Cluster messages".
+        Each actor encapsulates a unique "Capacity Pool" domain entity. Entities are not repeated between actors, shard
+        regions or instances.
+        Additionally, there are Failure Detector, Remoting, Analytics Stream and Persistence components in the service
+        instance, but outside Cluster Components.
+        Outside instances, there is an external load balancer (AWS ELB) that balance requests between instances HTTP 
+        interfaces, Cassandra database and Redshift data warehouse. Persistence component inside the instances connects
+        to Cassandra, and Analytics stream connects to Redshift.
+    ]({{ page.image_link_base }}/high_level_architecture@1x.svg)
 ]({{ page.image_link_base }}/high_level_architecture@2x.svg)
 {:.lead}
 
@@ -99,53 +113,178 @@ overwhelming or complex to grasp - in the following sections we'll slice it into
 Let's revisit [the application aspects][aspects] from the previous post in more detail: Consistency, Availability, 
 Request handling, Persistence and Performance - albeit in a slightly different order.
 
+**Note:** At that time, [Akka Typed][akka-typed] was in the "experimental" state. It reached maturity after the 
+project was mostly complete, and we had little practical incentive to rewrite it using Akka Typed. So all the code 
+examples are in the [Akka Classic][akka-classic] flavor, which is still supported and can coexist with Akka Typed, and 
+general ideas are still relevant (as of July 2020)..
+
 [aspects]: {{prev_post}}#final-architecture
+[akka-typed]: https://doc.akka.io/docs/akka/current/typed/actors.html
+[akka-classic]: https://doc.akka.io/docs/akka/current/index-classic.html
 
 ## Persistence
 
 [
-    ![QWEQWEQWEQWEQWE]({{ page.image_link_base }}/persistence@1x.svg)
+    ![
+        Same diagram with the persistence-related slice of the system hightlighted:
+        Actors (each actor encapsulate single domain entity), Persistence component, Cassandra database
+        Persistence is connected with a bidirectional arrow to Cassandra.
+    ]({{ page.image_link_base }}/persistence@1x.svg)
 ]({{ page.image_link_base }}/persistence@2x.svg)
 {:.lead}
 
-Akka Persistence + Sharding.
+Persistence aspect is the one at the core of the solution - it enables the rest of it and at the same time requires 
+certain mechanisms to be in place to function properly.
 
-Persistence basically implies either a single node (not highly available) or Sharding. Persistence is what actually 
-implements eventsourcing, Sharding ensures there are no copies of an entity with different state (which can diverge, 
-and corrupt event stream).
+In our scheme, persistence is handled by the [Persistent Actors][akka-persistent-actor] - Akka's approach to saving the
+Actor state. This is the part that implements eventsourcing - Persistent Actors keep their state in-memory, and only 
+reach out to the database in three cases:
 
-`persistAsync` exists, but _very_ risky - actor updates state and responds to 
-the caller right away. If persistence fails - lost update, correctness issue.
+* When a state-mutating _command_ is received, the actor first validates and converts it into an _event_, then writes 
+    the event to the database.
+* To periodically take a snapshot of the state and write it to the persistence.
+* When an actor (re)starts, it reads it's latest snapshot and all the events saved after it.
+
+One caveat is that Akka Persistence requires that at most one single instance of each persistence actor to be run. 
+Otherwise, since there are no state synchronization mechanism between copies[^4], the two instances' states can 
+diverge - leading to an incorrect execution of the business logic, inconsistent responses, saving "conflicting" events
+and eventually corrupting entity state. However, having an at most one copy of an entity is exactly what we wanted 
+for the concurrency reasons, so this was not an issue for us.
+
+The above guarantee is trivially provided in a single service instance (non highly available) scenarios, but is more 
+challenging in case of multiple instances (highly available). Thankfully, Akka has a built-in solution for such cases - 
+Akka Cluster Sharding. We'll take a closer look at it in the [Consistency](#consistency) section.
+
+See also: [Akka Classic Persistence example code][akka-persistence-slides]
+
+[akka-persistent-actor]: https://doc.akka.io/docs/akka/current/persistence.html
+
+[^4]: unless you create your own and solve all the associated issues, such as merging concurrent updates.
 
 ## Consistency
 
 [
-    ![QWEQWEQWEQWEQWE]({{ page.image_link_base }}/consistency@1x.svg)
+    ![
+        Same diagram highlighting components that contribute to the solution consistency:
+        Actors, Sharding and Shard Regions
+        Persistence is connected with a bidirectional arrow to Cassandra.
+    ]({{ page.image_link_base }}/consistency@1x.svg)
 ]({{ page.image_link_base }}/consistency@2x.svg)
 {:.lead}
 
-Entity (capacity pool is encapsulated and fully managed by an actor. 
-Akka Actor - "single-threaded" execution of the inner logic. No shared data, no concurrent processing.
-Akka Cluster Sharding - single instance of each actor.
-Result: sequential consistency model. TODO: Linearizeable or Sequential???
+To recap: during desing phase, [we found out][consistency-analysis] that the required consistency model for writes is 
+Sequential consistency, or stronger. There are three mechanisms that contribute to achieving this level of consistency:
 
-Split brain resolver - custom, static majority.
+* [Akka actors][actors-intro] alleviate the need for explicit locking and concurrency management - or, simply put, each
+    actor processes a single message at a time, and only pulls the next message when the current one is fully processed.
+* Actors encapsulate their state, so it is not possible to access the state (even for read purposes) except to send a 
+    message to an actor, and (maybe, if the actor decides so) receive a response.
+* Akka Cluster Sharding makes sure that there is at most one instance of each actor running in the cluster.
+
+These three together mean that any given actor state is only accessed in a serialized fashion - there is always at most
+one thread that runs the actor[^5], and there are no other instances of this actor elsewhere.
+
+Sharding requires a couple of mechanisms to work properly:
+
+**Unique identity:** each sharded actor must have a unique identifier, to tell it from the other actors.
+What's great is that there is an immediate synergy between Akka Cluster Sharding and Akka Persistence - persistence 
+also needs a unique identity, and it is very natural (and works great) to use the same ID for both.
+
+**Match actors and messages to shards:** Akka Cluster Sharding creates a number of shards (called Shard Regions) 
+that host sharded actors. Sharding need to be able to decide which Shard Region hosts which actor - most common 
+approach is to use [consistent hashing][consistent-hashing] over the entity ID (and there's an Akka built-in function
+to do so). The same applies to messages - each message has a recipient, and if recipient is a Sharded actor, 
+Akka need to out find in which Shard the actor resides. Obviously, the simplest way is to include the 
+target actor identifier into the message and reuse the same consistent hashing function.
+
+**Partition-tolerance:** Sharding makes sure that there is at most one instance of an actor in the cluster... but it 
+cannot make sure that there are no _other_ clusters that run the same actor. So it becomes a responsibility of the
+application to prevent such cases (also known as split brain scenarios). Akka Cluster provides the means to detect and 
+prevent this - there are membership and downing mechanisms baked in into the Cluster itself. Lightbend recently 
+open-sourced their previously proprietary [Split Brain Resolver][split-brain-resolver], but at the time we built this
+system it was still not available. So we rolled our own, based on a ["static quorum" approach][static-quorum].
+
+See also: [Akka Classic Sharding example code][akka-sharding-slides]
+
+[consistency-analysis]: {% post_url design/2020-07-14-eventsourcing-02-solutions %}#consistency-analysis
+[actors-intro]: https://doc.akka.io/docs/akka/current/typed/actors.html#akka-actors
+[consistent-hashing]: https://en.wikipedia.org/wiki/Consistent_hashing
+[split-brain-resolver]: https://doc.akka.io/docs/akka/current/split-brain-resolver.html
+[static-quorum]: https://doc.akka.io/docs/akka/current/split-brain-resolver.html#static-quorum
+
+[^5]: This is outside of the scope of the discussion, but Akka actor system uses event loop approach for concurrency - 
+    so _by default_ actors are scheduled to run on a shared pool of threads. There are configuration settings to adjust
+    this though - so "one thread-per-actor" is also achievable, but rarely justified. 
 
 ## Availability
 
 [
-    ![QWEQWEQWEQWEQWE]({{ page.image_link_base }}/availability@1x.svg)
+    ![
+        Same diagram highlighting components that contribute to the solution availability:
+        External load balancer (AWS ELB) directs customer requests to the healthy nodes
+        Akka's failure detector detects node crashes and notifies the rest of the cluster.
+        Cluster Sharding coordinator keeps orchestrates the reallocation of Shard Regions from failed/left nodes to
+        the healthy ones.
+        Distributed Data serves a replicated cache of capacity pools' counters to a readonly requests 
+    ]({{ page.image_link_base }}/availability@1x.svg)
 ]({{ page.image_link_base }}/availability@2x.svg)
 {:.lead}
 
-Sharding - recovery of failed nodes is automatic.
-"Graceful" shutdown - almost immediate
-Crash - need some time to detect (phi-accrual detector), during that time affected entities are not available.
+As I've [mentioned previously][system-cp], we were leaning towards consistent and partition-tolerant system 
+(aka **CP**). However, while our main goal was to ensure consistency, we also wanted the system to be as available as
+possible - because unavailable system is _safe_ (it doesn't do any bad), but not _useful_ (it doesn't do any good).
+
+Here we "cheated" a bit - we figured out that it is acceptable to have two "relaxations" to the availability definition:
+
+* [Reads can have relaxed consistency][relaxed-consistency-reads] - this allows serving some stale data to improve 
+    availability.
+* Split-second unavailability is not noticeable to the customers so we can afford 
+    ["fail fast&recover fast"][fail-and-recover-fast] approach.
+    
+The **relaxed consistency for reads** is backed by the [Akka Cluster Distributed Data][akka-distributed-data]. Simply 
+put, we used it to replicate the actor's internal state (which is essentially just a few counters) across all 
+the system's nodes. Distributed Data is backed by the so-called [Conflict-free Replicated Data Types][crdt] (CRDTs). 
+In our case, since we already made sure there's only one writer to every capacity counter, we just used 
+the Last-Writer-Wins Map.
+
+The **fail fast & recover fast** is achieved through a combination of multiple systems:
+
+* The first line is the existing load-balancer infrastructure, that detects failing nodes and direct customer traffic 
+    to the healthy ones. 
+* At the application itself, we relied on the Akka's built-in mechanisms for [graceful leaving][graceful-leave] 
+    the cluster in case of planned downing and [failure detection][failure-detector] for all other cases. In both cases, 
+    Akka Cluster Sharding would perform an automatic recovery of the affected actors.
+* Finally, since our goal was to [loose almost none customer requests][lost-requests] during planned node restart - 
+    we wanted to minimize the time period between actors going down on one node, and being recovered and ready 
+    to serve traffic on the other. This was initially achieved via [eager initialization of
+    Persistence plugin][akka-persistence-eager] and [remembering entites][remembering-entities] in the Shards, 
+    but (_spoiler alert_) this turned out to not be optimal. More details on this 
+    {% include infra/conditional-link.md label="in the next post" url=next_post %}
+
+[system-cp]: {% post_url design/2020-07-14-eventsourcing-02-solutions%}#cap-theorem
+[relaxed-consistency-reads]: {% post_url design/2020-07-14-eventsourcing-02-solutions%}#consistency-analysis
+[fail-and-recover-fast]: {% post_url distributed/2020-02-23-single-point-of-failure-is-ok %}#key-observation
+[akka-distributed-data]: https://doc.akka.io/docs/akka/current/distributed-data.html
+[crdt]: https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type
+[failure-detector]: https://doc.akka.io/docs/akka/current/typed/failure-detector.html
+[lost-requests]: {% post_url design/2020-07-14-eventsourcing-02-solutions %}#recap-declared-project-goals
+[next-post]: {{ next_post }}
+[akka-persistence-eager]: https://doc.akka.io/docs/akka/current/persistence-plugins.html#eager-initialization-of-persistence-plugin
+[remembering-entities]: https://doc.akka.io/docs/akka/current/cluster-sharding.html#remembering-entities
+[graceful-leave]: https://doc.akka.io/docs/akka/current/typed/cluster.html#leaving
+
+See also: [Akka Classic Distributed Data example code][akka-distributed-slides]
 
 ## Request handling
 
 [
-    ![QWEQWEQWEQWEQWE]({{ page.image_link_base }}/request_handling@1x.svg)
+    ![
+        Same diagram highlighting components that participate in handling the requests:
+        Business logic is encapsulated in the Capacity Pools, which are hosted inside actors.
+        A read-only cache of capacity counters is stored in the Distributed Data, and replicated on all nodes.
+        External load balancer communicates with the HTTP RPC API, built atop Akka HTTP and Akka Streams.
+        State updates are streamed into Redshift via Akka Stream
+    ]({{ page.image_link_base }}/request_handling@1x.svg)
 ]({{ page.image_link_base }}/request_handling@2x.svg)
 {:.lead}
 
@@ -183,6 +322,20 @@ Persistence - append-only write to DB.
 
 # Wrap up
 
-TBD
+To sum up: Akka let us build the business logic as if it was a single-threaded, single-machine system, while in fact it
+it used multiple threads, processors and virtual machines. We still needed to solve some challenges associated with the 
+distributed nature of the solution, but in a more explicit, well-defined and convenient way - the rest was provided by
+Akka. The key technology enabler for this was the combination of Akka Cluster Sharding and Akka Persistence - the former
+provided single writer guarantee without single point of failure, and the latter implemented eventsourcing to support
+rapid entity recovery and improved latency.   
 
-In {% include infra/conditional-link.md label="the next post" url=next_post %},  blabla
+{% include infra/conditional-link.md label="The next post" url=next_post %} will be devoted the initial pre-production
+launch of the system, issues uncovered during the end-to-end testing and changes needed to be done to address these 
+problems.
+
+[akka-streams-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_211
+[akka-http-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_175
+[akka-persistence-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18/edit#slide=id.g4533344fef_0_99
+[akka-singleton-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_235
+[akka-sharding-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18/edit#slide=id.g4533344fef_0_109
+[akka-distributed-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_253
