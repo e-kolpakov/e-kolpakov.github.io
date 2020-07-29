@@ -324,7 +324,7 @@
                          style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 361px; margin-left: 361px;">
                         <div style="box-sizing: border-box; font-size: 0; text-align: center; ">
                             <div style="display: inline-block; font-size: 14px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: all; white-space: nowrap; ">
-                                Analytics<br style="font-size: 14px"/>stream
+                                Analytics<div style="font-size:10px">(Akka Streams)</div>
                             </div>
                         </div>
                     </div>
@@ -610,7 +610,7 @@
                          style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 360px; margin-left: 911px;">
                         <div style="box-sizing: border-box; font-size: 0; text-align: center; ">
                             <div style="display: inline-block; font-size: 14px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: all; white-space: nowrap; ">
-                                Analytics<br style="font-size: 14px"/>stream
+                                Analytics<div style="font-size:10px">(Akka Streams)</div>
                             </div>
                         </div>
                     </div>
