@@ -2,10 +2,10 @@
 layout: post
 title: "Journey through eventsourcing: Part 3.1 - implementation"
 tags: ["design principles", eventsourcing-series-2020]
-image_link_base: /assets/img/eventsourcing/DRAFT-eventsourcing-03-implementation
+image_link_base: /assets/img/eventsourcing/2020-08-01-eventsourcing-03-implementation
 series_sequence_nr: 3
 key_takeaway: "eventsourcing/03-implementation-key-takeaway.md"
-image: /assets/img/eventsourcing/DRAFT-eventsourcing-03-implementation/cover-1.png
+image: /assets/img/eventsourcing/2020-08-01-eventsourcing-03-implementation/cover-1.png
 ---
 {% include infra/series-nav-link-variables series_tag="eventsourcing-series-2020" series_sequence_nr=page.series_sequence_nr %}
 [The previous post][previous-post] might have left you wondering - we have decided to reject the widespread and 
