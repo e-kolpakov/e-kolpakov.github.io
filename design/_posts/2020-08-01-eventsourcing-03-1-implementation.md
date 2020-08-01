@@ -4,7 +4,6 @@ title: "Journey through eventsourcing: Part 3.1 - implementation"
 tags: ["design principles", eventsourcing-series-2020]
 image_link_base: /assets/img/eventsourcing/2020-08-01-eventsourcing-03-implementation
 series_sequence_nr: 3
-key_takeaway: "eventsourcing/03-implementation-key-takeaway.md"
 image: /assets/img/eventsourcing/2020-08-01-eventsourcing-03-implementation/cover-1.png
 ---
 {% include infra/series-nav-link-variables series_tag="eventsourcing-series-2020" series_sequence_nr=page.series_sequence_nr %}
@@ -267,7 +266,6 @@ The **fail fast & recover fast** is achieved through a combination of multiple s
 [crdt]: https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type
 [failure-detector]: https://doc.akka.io/docs/akka/current/typed/failure-detector.html
 [lost-requests]: {% post_url design/2020-07-14-eventsourcing-02-solutions %}#recap-declared-project-goals
-[next-post]: {{ next_post }}
 [akka-persistence-eager]: https://doc.akka.io/docs/akka/current/persistence-plugins.html#eager-initialization-of-persistence-plugin
 [remembering-entities]: https://doc.akka.io/docs/akka/current/cluster-sharding.html#remembering-entities
 [graceful-leave]: https://doc.akka.io/docs/akka/current/typed/cluster.html#leaving
