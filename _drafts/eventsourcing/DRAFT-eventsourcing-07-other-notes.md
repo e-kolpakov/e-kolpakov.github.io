@@ -3,7 +3,7 @@ layout: post
 title: "TBD: eventsourcing other notes"
 tags: ["design principles", eventsourcing-series-2020]
 image_link_base: /assets/img/DRAFT-eventsourcing
-series_sequence_nr: 7
+series_sequence_nr: 8
 ---
 
 TBD
