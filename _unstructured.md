@@ -113,3 +113,14 @@ helped to reinforce the "new norm".
 After all this, I was able to reduce my review load back to 10-15% of my time, while still capturing the good amount
 of value from code reviews. So, I haven't counted, but in the next 6 months I've merged about 500-1000 lines of code
 per week :smile:. 
+
+
+
+# Akka persistence
+
+One additional note that touches both _Persistence_ and _Consistency_ is that even with these mechanisms in place, it is 
+still possbile to trade consistency for a better performance. Persistent Actor has two APIs for storing the event: 
+`persist` and `persistAsync`. While both accept the state-updating logic as a callback (or "continuation") and execute 
+it after the persistence is completed, `persist` prevents an actor from processing next message until the callback is 
+finished, while with the `persistAsync` it will start working on the next message right away. In our project, we needed 
+the consistency, so we always use `persist`.

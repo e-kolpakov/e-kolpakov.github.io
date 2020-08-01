@@ -3,7 +3,7 @@ layout: post
 title: "TBD: eventsourcing other notes"
 tags: ["design principles", eventsourcing-series-2020]
 image_link_base: /assets/img/DRAFT-eventsourcing
-series_sequence_nr: 7
+series_sequence_nr: 8
 ---
 
 TBD
@@ -33,8 +33,21 @@ for them as long as they use it only for RPC and maintain the versioning of API 
 Not that straightforward to achieve in practice - need to know how to handle all the versions.
 Never needed in practice though (although we didn't have to build new read-sides from the beginning of time).
 
-## Other risks
+## Monitoring and dahsboards
 
-Was able to corrupt Akka Sharding coordinator state once - only way to restore service is to manually wipe coordinator's
-persistence. On a good side, there's a "script" shipped with Akka to do so, and no "user data" is actually lost - 
-coordinator only controls where entities are placed, so just starting anew is a good recovery strategy.
+ELK:
+
+* Logs
+* Dashboard
+
+Graphana:
+* Standard package from devops - CPU, mem, network traffic, etc.
+* Calls to each endpoint
+* Latency
+* Deeper, business oriented metrics
+* Garbage Collection, mem
+
+Alerting:
+* From Graphana to slack => long latency
+* Load balancer - non-200 responses on the health endpoint
+    * Normally just "liveness" metric. We also plugged in some "usefulness" into it - are all expected actors running

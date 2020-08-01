@@ -3,7 +3,7 @@ layout: post
 title: "TBD: eventsourcing stabilization and launch"
 tags: ["design principles", eventsourcing-series-2020]
 image_link_base: /assets/img/DRAFT-eventsourcing
-series_sequence_nr: 4
+series_sequence_nr: 5
 ---
 
 TBD
@@ -16,6 +16,15 @@ The goal here is not to walk through all the issues, but highlight the relevant 
 the last shift because of XYZ" is not relevant to broad audience, but stuff about akka, CQRS and event-sourcing is.
 
 Basically, technical/infra problems, not business issues.
+
+## Load testing approach
+
+JMeter, with the following scenarios:
+1. Normal customer traffic, current load <-- can we at least deploy now, and work on perf later
+2. Normal customer traffic, 10x load <-- success criteria
+3. Normal customer traffic, all in till it breaks
+4. Pessimistic traffic shape - all customers target same entity, current load <-- defensive
+5. Pessimistic traffic shape - all in till it breaks
 
 ## Distributed data not performing well
 
@@ -58,6 +67,12 @@ the actors that should be there (we know which actors should be alive at any poi
 
 Lesson learnt - eagerness is not always good; if latency/availability is a concern might be good to focus on things
 that are necessary to serve, rather than bring up everything at once.
+
+## Other minor stuff
+
+Was able to corrupt Akka Sharding coordinator state once - only way to restore service is to manually wipe coordinator's
+persistence. On a good side, there's a "script" shipped with Akka to do so, and no "user data" is actually lost - 
+coordinator only controls where entities are placed, so just starting anew is a good recovery strategy.
 
 # Launch
 
