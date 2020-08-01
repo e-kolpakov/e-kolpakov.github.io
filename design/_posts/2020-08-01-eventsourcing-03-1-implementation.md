@@ -264,22 +264,19 @@ The **fail fast & recover fast** is achieved through a combination of multiple s
 [fail-and-recover-fast]: {% post_url distributed/2020-02-23-single-point-of-failure-is-ok %}#key-observation
 [akka-distributed-data]: https://doc.akka.io/docs/akka/current/distributed-data.html
 [crdt]: https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type
+[graceful-leave]: https://doc.akka.io/docs/akka/current/typed/cluster.html#leaving
 [failure-detector]: https://doc.akka.io/docs/akka/current/typed/failure-detector.html
 [lost-requests]: {% post_url design/2020-07-14-eventsourcing-02-solutions %}#recap-declared-project-goals
 [akka-persistence-eager]: https://doc.akka.io/docs/akka/current/persistence-plugins.html#eager-initialization-of-persistence-plugin
 [remembering-entities]: https://doc.akka.io/docs/akka/current/cluster-sharding.html#remembering-entities
-[graceful-leave]: https://doc.akka.io/docs/akka/current/typed/cluster.html#leaving
 
 See also: [Akka Classic Distributed Data example code][akka-distributed-slides]
 
 # Wrap up
 
 In {% include infra/conditional-link.md label="the second part" url=next_post %}, we'll take a look at the 
-Request Handling and Performance aspects of the system.
+Request Handling and Performance aspects of the system. Stay tuned!
 
-[akka-streams-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_211
-[akka-http-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_175
 [akka-persistence-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18/edit#slide=id.g4533344fef_0_99
-[akka-singleton-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_235
 [akka-sharding-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18/edit#slide=id.g4533344fef_0_109
 [akka-distributed-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_253

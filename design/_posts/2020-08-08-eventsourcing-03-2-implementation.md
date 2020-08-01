@@ -205,7 +205,9 @@ To overcome this, we've introduced a separate [read side](#read-sides) powered b
 designed to avoid sending hundreds of messages over the network. With it, the "Get Availability" request turned into
 a simple request-response interaction with a _local_ actor - the Distributed Data coordinator.
 
-[^8]: pssst! The big secret here! It can also write a _command_, which turns this whole thing into 
+See also: [Akka Streams example code][akka-streams-slides]
+
+[^8]: pssst! The big secret here! It can also write a _command_, which turns this whole thing into a
     [command-sourcing][command-sourcing]!
     
 [^9]: Unless Actor passivation is employed to conserve the memory. This wasn't the case for us though.
@@ -234,8 +236,3 @@ launch of the system, issues uncovered during the end-to-end testing and changes
 problems.
 
 [akka-streams-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_211
-[akka-http-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_175
-[akka-persistence-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18/edit#slide=id.g4533344fef_0_99
-[akka-singleton-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_235
-[akka-sharding-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18/edit#slide=id.g4533344fef_0_109
-[akka-distributed-slides]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18#slide=id.g3ffe535a95_0_253
