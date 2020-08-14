@@ -129,7 +129,7 @@ detail in {% include infra/conditional-link.md label="the next post" url=next_po
 
 ### Read sides
 
-The first read side was there to power the**get availability** query is again a replicated Distributed Data LWWMap. 
+The first read side was there to power the **get availability** query is again a replicated Distributed Data LWWMap. 
 Simply put, it was just a lookup table with a capacity pool identifier as keys and remaining capacity as values. 
 The read controller would just get the entire map from Distributed Data, scan the map and iterate over the records
 to find the relevant ones. This might sound inefficient, but in practice, there was little reason for a more 
