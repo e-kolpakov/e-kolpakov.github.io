@@ -261,13 +261,14 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
   - jekyll-titles-from-headings
+  - jekyll-include-cache
   - jemoji
 
 # Theme
 # ---------------------------------------------------------------------------------------
 
 # theme: jekyll-theme-hydejack
-remote_theme: qwtel/hydejack@v8.5.2
+remote_theme: qwtel/hydejack@v9.0.5
 
 # SEO Tag
 # ---------------------------------------------------------------------------------------
