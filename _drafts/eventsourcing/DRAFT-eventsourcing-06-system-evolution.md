@@ -12,6 +12,22 @@ TBD
 
 # Evolving the system (and how design choices helped)
 
+## Schema evolution
+
+Seialization: Forward/backward compatibility
+Serialization speed - not only for persistence, but for cross-node communication as well.
+Human-readable vs. compactness
+
+Serialization -- actually Kryo is a good answer, but the scala binding that provides serde for Scala specific
+data structures sucks. For a significant example, it creates an immutable list (or vector?) in the begining, and
+add element to it one by one as it recieves. An alternative solution would be have some size hint in the beginning
+and create a mutable list (or array) to host them all. Also when using Kryo to serialize for those Akka persistence
+events, be sure to choose the backwards compatible way (compatible field serializer). It's not the default one on
+the samples on those other blogs. Be careful on this! Almost all the other parts on those blogs are correct, e.g.
+bind them manually, not letting Kryo infer the type of class etc. On a side note, Alibaba is trying to use Kryo but
+they are using it in a default (Kryo default) way that assumes classes with a same FQCN are the same. Guess it's fine
+for them as long as they use it only for RPC and maintain the versioning of API themselves.
+
 ## Multidrops project
 
 Another read side (?) in Cassandra, optimized selection of buckets, limited re-opimization.
@@ -70,3 +86,15 @@ Was artery added at that time, or shortly after?
 Outcome: integrated in time, sustained up to 50x production traffic at pre-launch load test. Recently, during spike of
 load in COVID and operational constraints, was able to seamlessly handle almost 40x "normal" traffic in the wild 
 (put a graph?)
+
+# Other thoughts
+
+## Time-travel, replaying events
+
+Not that straightforward to achieve in practice - need to know how to handle all the versions.
+Never needed in practice though (although we didn't have to build new read-sides from the beginning of time).
+
+## Monitoring and dahsboards
+
+Load balancer - non-200 responses on the health endpoint. Normally just "liveness" metric. 
+We also plugged in some "usefulness" into it - are all expected actors running
