@@ -10,6 +10,10 @@ my team decided to go with a so called "dark launch" - exposing the system to th
 production traffic, but ignoring its decisions upstream. This turned out to be a very wise decision - a couple of pretty
 serious issues were captured and fixed during the "dark launch".
 
+https://launchdarkly.com/blog/why-leading-companies-dark-launch/#:~:text=Dark%20launching%20is%20the%20process,bugs%2C%20and%20assess%20infrastructure%20performance.
+https://www.functionize.com/blog/what-is-canary-testing-and-dark-launching/
+https://www.ibm.com/garage/method/practices/run/practice_dark_launch_feature_toggles/
+
 
 # Dark launch
 

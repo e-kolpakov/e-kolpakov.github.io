@@ -31,19 +31,28 @@ and losses.
 
 {% include infra/series-navigation.md series_tag="eventsourcing-series-2020" %}
 
-# Pre-flight checks
+# Static fire test
 
-The last couple of weeks before the launch we spent doing some sort of "pre-flight checks" - trying to make sure we
-catch as many issues as possible and also preparing the safety harness to address issues and recover from failures
-should they happen.
+<div class="image-with-attribution inline-text-wrap right" markdown="1">
 
-Even though we had pretty good test coverage, we still didn't have high enough confidence that the system would behave 
-correctly - primarily because the testing captured the issuse we knew could happen. However, our new system was built
-using pretty novel technology - both to us and to the organization as a whole - so we were pretty sure there are issues
-we missed. One of the areas where the confidence was especially low was system's behavior under load and in the 
-presense of failure - so this is where most of my efforts was concentrated.   
+![]({{ page.image_link_base }}/static-fire.jpg)
+
+Image source: [NASA][static-fire] (adapted)
+{:.image-attribution}
+
+[static-fire]: https://www.nasa.gov/exploration/systems/sls/multimedia/booster-test-for-future-space-launch-system-flights2.html
+
+</div>
+
+The last couple of weeks before the launch we spent doing some sort of "static fire tests" - trying to make sure we
+catch as many issues as possible. Even though we had pretty good test coverage, we still didn't have high enough 
+confidence that the system would behave correctly - primarily because the automated testing only captures the issues 
+someone already imagined. Our new system was built using pretty novel technology - both to us and to the organization 
+as a whole - so we were pretty sure there are issues our imagination have missed. One of the areas where the confidence
+was especially low was system's behavior under load and in the presence of failure - so this is where most of 
+my efforts was concentrated.   
    
-## Load testing ...
+## Load testing
 
 <div class="image-with-attribution inline-text-wrap right" markdown="1">
 
@@ -59,75 +68,59 @@ Image source: [Pixabay][rpm] - [Pixabay License][pixabay-licence]
 
 I have experimented with multiple load test tools - such as [Locust][locust] and [Gatling][gatling], but eventually 
 ended up using old and venerable [JMeter][jmeter]. The reason behind this was simple - even though as software 
-developer I enjoyed and valued the "loadtest as code" approach many modern frameworks offer, it required much higher 
-effort to actually develop, run and analyze the results of the test[^2].
+developer I enjoyed and appreciated the "loadtest as code" approach many modern frameworks offer, it required much 
+higher effort to actually develop, run and analyze the results of the test[^1].
+
+Test scenarios evolved quite a bit - they started as a single guardrail-style test and naturally evolved to cover 
+many more cases - from "are we achieving the design goals?" to "how much heat can it take till it breaks?". Moreover, 
+the scenarios were often run with failures being injected into the system in background. The proper way to do so 
+would be to have some tool to inject failures at random - such as [Chaos Monkey][chaos-monkey], but in our case
+failure injection boiled down to me just ssh-ing to instances and killing java processes.
+
+The initial load tests with "normal shape, current load" went well - system was holding response times significantly
+below the alotted latency budget and behaved correctly. However, as I pressed on the accelerator, problems start to 
+occur. Long story short, the hunch that there were a bunch of unknown bugs related to the load and failures turned 
+out to be quite correct - I've found and addressed some issues that could've caused a major downtime and losses, 
+should they manifest in production.
 
 [locust]: https://locust.io/
 [gatling]: https://gatling.io/
 [jmeter]: https://jmeter.apache.org/
-
-Besides the actual "coding" of the load test (i.e. setting up requests, parsing responses, etc.), there are two major
-parts of the loadtest that affect results: test environment and test scenarios. I didn't do anything fancy for the test 
-environment - just used the staging env that was already there. It fully replicated the production env, except used a 
-downscaled instance sizes - `t2.micro`, to be specific[^3].
-
-Test scenarios actually evolved quite a bit during the pre-launch phase - they started as a single guardrail-style test
-and naturally evolved to cover many more cases. So, at the end, the list was roughly as follows:
-
-1. Normal customer traffic shape, current load - guardrail: safe to deploy now?
-2. Normal customer traffic shape, 10x load - initial design goal.
-3. Normal customer traffic shape, full burn till it breaks - testing the limits of the system.
-4. Pessimistic traffic shape: all customers target same delivery slot, current load - does it hold in the worst case?
-5. Pessimistic traffic shape: all customers target same delivery slot, full burn till it breaks.
-
-Finally, the scenarios were often run with failures being injected into the system in background. The proper way to
-do so would be to have some tool to inject failures at random - such as [Chaos Monkey][chaos-monkey], but in our case
-failure injection boiled down to a developer just ssh-ing to instances and killing java processes.
-
 [chaos-monkey]: https://netflix.github.io/chaosmonkey/
 
-[^2]: Simply put, with JMeter most of the things we needed was already there - including building and parsing JSON
-    payloads, asserting on response status codes, etc. With gatling and locust we'd need to build it ourselves.
+[^1]: Simply put, with JMeter most of the things we needed was already there - including building and parsing JSON
+    payloads, asserting on response status codes, graphing results, etc. With gatling and locust we'd need to 
+    build many of those features ourselves.
 
-[^3]: back then `t2` was the latest generation, `t3` came out a year or so after.
+## Distributed data not performing well
 
-## ... and issues it caught
-
-The initial load tests with "normal shape, current load" went well - system was holding response times significantly
-below the alotted latency budget and behaved correctly. However, as I raised the heat, problems start to occur. 
-Long story short, the hunch that there were a bunch of unknown bugs related to the load and failures turned out to be 
-quite correct - I've found and addressed three issues that could've caused a major downtime and losses, should they 
-manifest in production.
-
-### Distributed data not performing well
-
-The first problem occured under pure load test (no failures), under slightly higher load then the production traffic -
+The first problem occured under pure load test (no failures), slightly higher load then the production traffic -
 around 2.5x. The response throughput vs. number of concurrent users would first hit a plateau, and after a relatively
-short exposure to such traffic (~2-3 minutes) the cluster would desintegrate[^4], resulting in complete unavailability.
+short exposure to such traffic (~2-3 minutes) the cluster would desintegrate[^2], resulting in complete unavailability.
 What's worse, after the request rate would drop to a "safe" levels, the system would not automatically recover, staying
 in the broken state until manual intervention. Obviously, this was unacceptable.
 
-The root cause turned out to be one particular use of [Distributed Data][akka-ddata] we had - it stored a map used to
-associate orders to the actors storing them - to optimize the cancellation call. During high load the map would receive
-large numbers of updates; performing these updates would compete for CPU time with the "normal" request handling. 
-Eventually, due to the way it was set up in Distributed Data internals, the incoming map updates would fill entire
-JVM heap and cause the process to grind to a full halt.
+The root cause turned out to be one particular use of [Distributed Data][akka-ddata] we had: it stored a map
+associating orders to the actors keeping them - this was done to optimize the order cancellation call. During high load
+the map would receive large numbers of updates; performing these updates would compete for CPU time with the "normal" 
+request handling. Eventually, due to the way it was set up in Distributed Data internals, the incoming map updates 
+would fill entire JVM heap and cause the Java process to grind to a full halt.
 
-The fix was simple, but counterintuitive. Instead of maintaining a lookup map and sending just one cancellation message
-only to the actor that owned the reservation, the map was completely removed in favor of a brute-force approach - 
-broadcasting the cancellation to all actors, and simply ignoring it if an actor did not own the cancellation. 
-Even though it is counter-intuitive - each cancellation would spawn ~500 messages, most of which would require
-network communication - in practice this approach was able to maintain much higher load levels[^5].
+The fix was simple, but counterintuitive. Instead of maintaining a lookup map and sending just one message to the actor
+that owned the reservation, it would broadcast the cancellation to all actors, and the ones that does not own the 
+cancelled reservation would simply ignore the message. Even though it is counter-intuitive - each cancellation would 
+spawn ~500 messages, most of which would require network communication - in practice this approach was able 
+to maintain much higher load levels[^3].
 
 **Lesson learnt:** one real life example towards "premature optimization is the root of all evil" mantra. 
 
 [akka-ddata]: https://doc.akka.io/docs/akka/current/distributed-data.html
 [akka-ddata-limitations]: https://doc.akka.io/docs/akka/current/distributed-data.html#limitations
 
-[^4]: _literally_ desintegrate :smile: As in, "loose integrity".   
-[^5]: The record was around 60x normal load - and even then the bottleneck was somewhere else.
+[^2]: _literally_ desintegrate :smile: As in, "loose integrity" - nodes stop communicating with each other.
+[^3]: The record was around 60x normal load - and even then the bottleneck was somewhere else.
 
-### Loosing requests during restart
+## Loosing requests during restart
 
 The next serious issue happened only in presence of node restarts, but under any load. When a node was gracefully
 shutdown, part of the system's state would briefly go unavailable. The expectation was that the requests targeting
@@ -141,54 +134,84 @@ This is somewhat acceptable behavior in general - partial, brief and self-healin
 The issue was caused by the combination of two factors - the [persistence library][akka-persistence-cassandra] 
 initialization were not eager enough and our own system was too eager to relocate and recover the
 actors. The former caused a few seconds delay when a first actor is recovered on a freshly joined instance, and 
-the latter would put all the affected actors up for recovery  at the same time - overloading the recovery process[^6].
+the latter would put all the affected actors up for recovery at the same time - overloading the recovery process[^4].
 
-The fix was also twofold - I have [submitted an issue][eagerness-issue] and it was fixed and published the next week. 
-I have also changed the recovery approach - and again it was somewhat counter-intuitive - from trying to recover all 
-the actors as soon as possible, to **not recovering any**. In this case, a different mechanism kicks in, that sort of 
-"prioretizes" recovering actors that has unhandled messages[^7]. In addition, later we've added a "watchdog" actor
-that would force recovery of all actors that should be running 30-40 seconds after cluster membership changes.
+The fix was also twofold - I have [submitted an issue][eagerness-issue] and it was fixed and published the next week 
+(kudos to the maintainers). I have also changed the recovery approach - and again it was somewhat counter-intuitive - 
+from trying to recover all the actors as soon as possible, to **not recovering any**. In this case, a different 
+mechanism kicks in, that sort of "prioritizes" recovering actors that has unhandled messages[^5]. In addition, later 
+we've added a "watchdog" actor that would send a wakeup message to all the actors that should be up and running shortly 
+after nodes join or leave cluster - forcing recovering the actors that are still down.
 
-**Lesson learnt:** eagerness is not always good; if latency/availability is a concern it might be good to prioretize 
+**Lesson learnt:** eagerness is not always good; if latency/availability is a concern it might be good to prioritize 
 things that are necessary, rather than bring up everything at once.
     
-[^6]: This would cause a lot of load on the persistence plugin in general. In our case, it was even more pronounced, as
+[^4]: This would cause a lot of load on the persistence plugin in general. In our case, it was even more pronounced, as
     we configured a "constant" recovery strategy that limits the number of concurrent recoveries - this was done to
     limit the impact of recoveries on the normal request handling.
     
-[^7]: The detailed description is too long and irrelevant to the topic at hand, but simply put, Akka Sharing attempts
+[^5]: The detailed description is too long and irrelevant to the topic at hand, but simply put, Akka Sharing attempts
     redelivering messages sent to actors in the downed shard regions, and this causes the target actor to be started
-    and recovered to latest state. 
+    if it is down. 
     
 [design-goal-no-failure-during-planned-restart]: {% post_url design/2020-07-14-eventsourcing-02-solutions %}#recap-declared-project-goals
 [akka-persistence-cassandra]: https://github.com/akka/akka-persistence-cassandra
 [eagerness-issue]: https://github.com/akka/akka-persistence-cassandra/issues/350
 
-
-
-### Sharding coordinator state issue
-
-This has happened just once - sharding coordinator corrupted it's own state, and was unable to start. It rendered
-an entire service unusable, so even though it happened once and under extreme circumstances (`kill -9` and restart
-instances under load test), the investigation and recovery took a long time - ~4-5 hours.
-
-How did we found out - emulated total crash by `kill -9` ing java processes under extreme load.
-
-Root cause - not exactly sure. According to coordinator error messages and records stored in Cassandra, it expected to
-observe messages up to N, but actually had up to N-1. This might indicate a problem with Cassandra, Akka Persistence 
-implementation, or maybe some overly optimistic configuration we had - but we never invested time to dig into that.   
-
-How did we fix it - it was extremely hard to reproduce (in fact, couldn't reproduce at all), so I have just prepared 
-a script to nuke the coordinator state, allowing it to start clean + added symptoms to the troubleshooting guide.   
-
-Lesson learnt - if there is one thing that can take your entire system down - it eventually will, even if it is 
-extremely robust. Better have a recovery plan for that case as well.
-
-## Recovery
-
 # Launch
 
+## Pre-flight checks
 
+Last week before the launch was devoted to building supporting tools and scripts to monitor systems health and speed up 
+recovery from failures. Most are pretty straightforward and common things - such as Kibana and Graphana dashboards to
+monitor logs and system metrics, setting up alerts, opting-in into the VM health monitoring, provisioning the VMs and 
+databases in the production environment, etc. Two noteworthy and non-trivial additions were scripts to perform 
+recovery actions.
+
+**First script** allowed any actor or group of actors, to have their state "reset" to a selected point in time. With
+eventsourcing, it is "illegal" to delete persistence records, as they represent events that already happened in the
+real life. Instead, the script caused actors to "pretend" like certain batch of events had no effect - by finding the
+latest state snapshot made before the target point in time and copying it as the last recorded.
+
+**Second script** used system of record for the customer orders to reconstruct and "replay" the requests to our system.
+Long story short, it queried the corresponding database directly and then just looped over the orders in chronological
+order, issuing requests as if they were originated from those customer orders.
+
+Canonical eventsourcing systems has a unqiue ability to retroactively fix issues given that the sequence of persisted 
+events is still correct and valid. Adding these scripts also allowed us to retroactively fix[^6] cases when invalid 
+business logic decisions were made and invalid events were persisted.
+
+[^6]: This ain't a proper time-machine, unfortunately, so in some cases the recovery would have no choice but to 
+violate the constraints - in such cases we would at lest know to what extend the constraints are violated and could
+issue a warning to operations to prepare for trouble.
+
+## We're clear for take off
+
+Before the full launch, the system needed to accumulate about a week worth of requests in a "readonly" mode -
+to build up the current state of the world. This could have been done faster using the second script above, but the 
+decision was to make the launch process a bit more sophisticated and go with a so-called ["dark launch"][dark-launch]
+approach. 
+
+The full details are irrelevant here (I'll probably write a separate post on it), but simply put, I've rigged
+the legacy capacity management system to send all the request it receives to the new system - and put it behind 
+a feature flag. The flag also served as a killswitch - should anything go wrong it would require just a single config
+change to completely divert all traffic from hitting the new system.
+
+[dark-launch]: https://launchdarkly.com/blog/why-leading-companies-dark-launch  
+
+## Ignition!
+
+Finally, with all the preparation, load testing and safety harness, the actual dark launch was... uneventful.
+Literally - I've flipped the switch one Wednesday morning, and no one noticed anything, no servers catching fire, 
+no angry customers unable to place orders. 
+
+This was **a major success** - we saw that the new system accumulates data and makes decisions, we could already 
+evaluate if it is performing well and doing the right thing, there was data flowing from the system into 
+analytics databases, etc. - so it was functioning properly and ready for the "full launch".
+
+The rest was history - "full launch" actually stretched a good couple of months and was done "one zone at a time", when
+the operations felt they're ready for a switchover. And they all lived happily ever after... until the first change
+request. :smile:
 
 # Key takeaways
 
@@ -196,9 +219,14 @@ extremely robust. Better have a recovery plan for that case as well.
 
 # Conclusion
 
-In addition, I spent some time building a safety net:
-* script to "rollback" any state to a point in time
-* script to "replay" production requests using data from "old" system's DB
-* script to automate sharding coordinator state reset
+To sum up: we took a careful and thoughtful approach to consider and analyze multiple implementation approaches and
+architecture styles. Most "classical", "lightweight" or "straightforward" sparkled concerns about either consistency,
+availability, or performance of the solution. Eventsourcing approach, despite being more novel to the team and more 
+inherently complex, offered a clear way to achieve the goals, and set up a firm ground for further evolution 
+and scaling of the system.
 
-TBD
+The biggest takeaway from this post is that with a stateful eventsourced system, there's a large chunk of problems that
+arise from quirks and peculiarities of the particular implementation.  
+
+In {% include infra/conditional-link.md label="the next" url=next_post %}, and final, post we'll take a glance at how
+the system withstand the test of time - from small bugfixes and improvements to major new features and
