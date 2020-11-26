@@ -224,7 +224,7 @@ See also: [Akka Streams example code][akka-streams-slides]
 
 # Wrap up
 
-To sum up: Akka let us build the business logic as if it was a single-threaded, single-machine system, while it is
+To sum up: Akka let us build the business logic as if it was a single-threaded, single-machine system, while it
 used multiple threads, processors, and virtual machines. We still needed to solve some challenges associated with the 
 distributed nature of the solution, but in a more explicit, well-defined and convenient way - the rest was provided by
 Akka. The key technology enabler for this was the combination of Akka Cluster Sharding and Akka Persistence - the former

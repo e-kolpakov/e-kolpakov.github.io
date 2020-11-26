@@ -124,3 +124,38 @@ still possbile to trade consistency for a better performance. Persistent Actor h
 it after the persistence is completed, `persist` prevents an actor from processing next message until the callback is 
 finished, while with the `persistAsync` it will start working on the next message right away. In our project, we needed 
 the consistency, so we always use `persist`.
+
+
+## Sharding coordinator state issue
+
+The most arcane problem was caused by a combination of increased load (~5x-10x) and "hard" node stops.
+
+*Short detour into the depths of Akka Cluster:* each cluster has a Sharding Coordinator (**SC**) actor that fulfills
+certain bookkeeping and administrative duties for the cluster. The **SC** has internal state, and might need to be moved
+between the nodes or recovered - thus the state must be persistent. However, the **SC's** state is only relevant to a 
+single cluster lifetime - if a cluster is fully shut down or restarted, the **SC's** state from the "previous
+incarnation" of the cluster has no use. Because of that, there are two persistence mechanisms for the **SC's** state - 
+one that uses Akka Distributed Data, and the other that uses Akka Persistence.
+
+Switching between the two mechanisms is very easy - so, since there were issues and concerns about Distributed Data 
+already, the cluster was configured to use Persistence backend for **SC** state - which made it survive the cluster 
+restarts as a side effect.
+
+One fine day, during an extensive performance + robustness tests and after mercilessly killing (`kill -9`) an 
+unsuspecting node, the cluster become "frozen" - the actors that were not affected by the node crash kept running 
+and responding normally, but the ones that were on a crashed node were not even attempting to start and recover. 
+Moreover, after "power-cycling" the enitre cluster, it went completely unresponsive - no actors were starting, no 
+requests were served, etc. - and such state persisted across partial (some nodes) and full (all nodes) restarts.
+
+Further digging uncovered that somehow **SC's** state was corrupted - causing it to fail at startup, and rendering 
+the cluster unable to manage shards and sharding-aware actors. I've never found the root cause[^8] - reproducing the 
+failure turned out to be very difficult. Instead, since the probability of the scenario was low, I've decided to just 
+document the symptoms and recovery steps - which were to simply wipe the **SC** state and start anew.   
+
+**Lesson learnt:** if there is one thing that can take your entire system down - it eventually will, even if it is 
+extremely robust. Better have a plan for a speedy recovery if that situation materializes.
+
+[^8]: one theory that matches observations is that the state update requires two operations - one to persist state
+update record itself, and the other is to update the counter of persisted state records. Somehow, the counter was 
+updated. but the actual record was lost, which made the state integrity check fail on the grounds of "expected N state 
+records, but found only N-1".   
