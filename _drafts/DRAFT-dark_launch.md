@@ -2,7 +2,7 @@
 layout: post
 title: "TBD: Dark launch"
 tags: TBD
-image_link_base: /assets/img/_drafts/DRAFT-dark-launch
+image_link_base: /assets/img/_drafts/
 ---
 
 
