@@ -2,15 +2,15 @@
 layout: post
 title: "Journey through eventsourcing: Part 4 - Pre-flight checks and launch"
 tags: ["design principles", eventsourcing-series-2020]
-image_link_base: /assets/img/eventsourcing/DRAFT-eventsourcing-04-launch
+image_link_base: /assets/img/eventsourcing/2020-11-30-eventsourcing-04-pre-flight-and-launch
 series_sequence_nr: 5
 key_takeaway: "eventsourcing/04-launch-key-takeaway.md"
 image: 
-    path: /assets/img/eventsourcing/DRAFT-eventsourcing-04-launch/cover.png
+    path: /assets/img/eventsourcing/2020-11-30-eventsourcing-04-pre-flight-and-launch/cover.png
     srcset:
-        1920w: /assets/img/eventsourcing/DRAFT-eventsourcing-04-launch/cover.png
-        960w:  /assets/img/eventsourcing/DRAFT-eventsourcing-04-launch/cover@0,5x.png
-        480w:  /assets/img/eventsourcing/DRAFT-eventsourcing-04-launch/cover@0,25x.png
+        1920w: /assets/img/eventsourcing/2020-11-30-eventsourcing-04-pre-flight-and-launch/cover.png
+        960w:  /assets/img/eventsourcing/2020-11-30-eventsourcing-04-pre-flight-and-launch/cover@0,5x.png
+        480w:  /assets/img/eventsourcing/2020-11-30-eventsourcing-04-pre-flight-and-launch/cover@0,25x.png
 ---
 {% include infra/series-nav-link-variables series_tag="eventsourcing-series-2020" series_sequence_nr=page.series_sequence_nr %}
 [The previous post][previous-post] took us through the implementation phase - the next step was to launch 
