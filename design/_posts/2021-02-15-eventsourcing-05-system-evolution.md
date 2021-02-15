@@ -2,15 +2,15 @@
 layout: post
 title: "Journey through eventsourcing: Part 5 - Support and Evolution"
 tags: ["design principles", eventsourcing-series-2020]
-image_link_base: /assets/img/eventsourcing/DRAFT-eventsourcing-05-support-and-evolution
+image_link_base: /assets/img/eventsourcing/2021-02-15-eventsourcing-05-support-and-evolution
 series_sequence_nr: 6
 key_takeaway: "eventsourcing/05-support-and-evolution-key-takeaway.md"
 image: 
-    path: /assets/img/eventsourcing/DRAFT-eventsourcing-05-support-and-evolution/cover.png
+    path: /assets/img/eventsourcing/2021-02-15-eventsourcing-05-support-and-evolution/cover.png
     srcset:
-        1920w: /assets/img/eventsourcing/DRAFT-eventsourcing-05-support-and-evolution/cover.png
-        960w:  /assets/img/eventsourcing/DRAFT-eventsourcing-05-support-and-evolution/cover@0,5x.png
-        480w:  /assets/img/eventsourcing/DRAFT-eventsourcing-05-support-and-evolution/cover@0,25x.png
+        1920w: /assets/img/eventsourcing/2021-02-15-eventsourcing-05-support-and-evolution/cover.png
+        960w:  /assets/img/eventsourcing/2021-02-15-eventsourcing-05-support-and-evolution/cover@0,5x.png
+        480w:  /assets/img/eventsourcing/2021-02-15-eventsourcing-05-support-and-evolution/cover@0,25x.png
 ---
 {% include infra/series-nav-link-variables series_tag="eventsourcing-series-2020" series_sequence_nr=page.series_sequence_nr %}
 The launch we covered in [the previous post][previous-post] was a major milestone, but not the final destination. In 
