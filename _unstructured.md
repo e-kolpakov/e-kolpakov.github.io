@@ -159,3 +159,27 @@ extremely robust. Better have a plan for a speedy recovery if that situation mat
 update record itself, and the other is to update the counter of persisted state records. Somehow, the counter was 
 updated. but the actual record was lost, which made the state integrity check fail on the grounds of "expected N state 
 records, but found only N-1".   
+
+
+# Serialization
+
+**TL;DR:** pick serialization carefully - it is very hard to change it. Binary protocols has the best performance, 
+human-readable are easier to work with (including writing out-of-band scripts). Forward/backward compatibility is a BIG
+concern.
+
+Tangentially relevant to schema evolution is serialization.
+
+Affects persistence and recovery performance
+
+Our pick was not ideal - kryo looked promising, but had some problems with Scala data structures. 
+Forward/backward compatibility weren't great as well - default option is non-backward compatible.
+
+Serialization -- actually Kryo is a good answer, but the scala binding that provides serde for Scala specific
+data structures sucks. For a significant example, it creates an immutable list (or vector?) in the begining, and
+add element to it one by one as it recieves. An alternative solution would be have some size hint in the beginning
+and create a mutable list (or array) to host them all. Also when using Kryo to serialize for those Akka persistence
+events, be sure to choose the backwards compatible way (compatible field serializer). It's not the default one on
+the samples on those other blogs. Be careful on this! Almost all the other parts on those blogs are correct, e.g.
+bind them manually, not letting Kryo infer the type of class etc. On a side note, Alibaba is trying to use Kryo but
+they are using it in a default (Kryo default) way that assumes classes with a same FQCN are the same. Guess it's fine
+for them as long as they use it only for RPC and maintain the versioning of API themselves.
