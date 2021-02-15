@@ -46,11 +46,11 @@ Image source: [Flickr][launch] by [patriziasoliani][patriziasoliani]
 [cc-by-nc-2.0]: https://creativecommons.org/licenses/by-nc/2.0/
 </div>
 
-**TL;DR:** schema evolution in eventsourcing systems is much more convoluted than in _state-sourcing_. _Before_ making 
-a decision to go with eventsourcing vs. _state-sourcing_, familiarize yourself (and the team) with the implications - 
+**TL;DR:** schema evolution in eventsourcing systems is much more convoluted than in state-sourcing. _Before_ making 
+a decision to go with eventsourcing vs. state-sourcing, familiarize yourself (and the team) with the implications - 
 it might influence the decision heavily.
 
-Schema evolution is relatively trivial in a classical _state-sourced_ system. When persisted data changes its structure, 
+Schema evolution is relatively trivial in a classical state-sourced system. When persisted data changes its structure, 
 the solution is to write and run a schema migration script. The script might be a bunch of instructions in a fancy DSL, 
 literally a python/go/ruby/JS/etc. script to read-update-save DB records in a loop or just a SQL command to execute. 
 Many languages, frameworks, and 3rd party libraries exist to support that[^1]. 
@@ -64,8 +64,7 @@ such as in-application event adapters, copy-transform event updates, snapshot+di
 the application itself and related systems[^3].
 
 In our case, we went with the in-app adapter approach - the one promoted by the 
-[Akka Persistence][akka-persistence-event-adapters] (or a bit obsolete, but much better at explaining the general idea 
-[Classic Akka Persistence][akka-persistence-classic-event-adapters]). All-in-all it was an interesting exercise - 
+[Akka Persistence][akka-persistence-event-adapters][^4]. All-in-all it was an interesting exercise - 
 writing and enabling the adapter was easy; however, one of the models changed three times in a couple of months, 
 each change producing yet-another-event-adapter. So we were on the brink of needing something more radical 
 (I was exploring the snapshot+discard options), but then the data model finally stabilized.
@@ -78,11 +77,13 @@ each change producing yet-another-event-adapter. So we were on the brink of need
 [^2]: for example, when adding a new event attribute, it is not always possible to "go back in time" and infer what 
     the value of that attribute would have been for an old event.
 
-
 [^3]: In-app adapters generally work well _for the app_, but any derived data streams are left behind. Copy-transform
     tailors to the derived data much better, but the application itself requires more changes and planning. 
     Reasoning about the system is easier with snapshot+discard, but it erases history. Other techniques 
     also have pros and cons. 
+
+[^4]: [Classic Akka Persistence][akka-persistence-classic-event-adapters] is obsolete but explains the topic 
+    much better
 
 [eventsourcing-schema-migration-presentation]: https://docs.google.com/presentation/d/1gt8JW5ky3O8XHDdAUPlu6KcO4jErHoZBESdIRdkJ_18/edit#slide=id.g415fdb2fc6_0_85
 [akka-persistence-event-adapters]: https://doc.akka.io/docs/akka/current/typed/persistence.html#event-adapters
@@ -123,8 +124,6 @@ Because of the [issues with Distributed Data][ddata-problem], we faced earlier, 
 solution - with tables carefully designed against the query, allowing the data to be read from memory almost 
 all the time.
 
-[^4]: and probably part of know-how or trade secret - nothing eye-opening, but still.
-
 [ddata-problem]: {% post_url design/2020-11-30-eventsourcing-04-pre-flight-and-launch %}#distributed-data-not-performing-well
 
 ## Lazada integration
@@ -156,7 +155,7 @@ our solution[^5]. The requirements were simple - we needed to expose the existin
 99.95% availability[^6].
 
 **Creating gRPC endpoints** were relatively straightforward - the choice to go with Akka HTTP played out quite well due
-to the [design philosophy][akka-http-philosophy] - it is a library to build HTTP interfaces, not the framework to 
+to the [design philosophy][akka-http-philosophy] - it is a library to build HTTP interfaces, not a framework to 
 structure the app. Due to that, we just had to add [Akka gRPC][akka-grpc] alongside the existing HTTP endpoints and wire
 them to the application logic. It wasn't just a configuration switch - some effort was necessary to "reverse-engineer"
 the DTOs we used in REST+JSON endpoints into protobuf declarations - but still straightforward enough.
@@ -211,31 +210,31 @@ Image by [ElisaRiva][elisariva] from [Pixabay][pixabay] - [Pixabay Licence][pixa
 [pixabay-licence]: https://pixabay.com/service/license/
 </div>
 
+There are some other minor-but-noteworthy learnings. So I decided to put them here, at the end of the journey, 
+in the last section.
 
-There are some other minor-but-noteworthy learnings. So I decided to put them here, at the end of the journey, in the last section.
-
-**Planning for a 10x/20x/etc. throughput is an overkill:** there was some minor debate about throughput targets we 
+**Planning for a 10x/20x/etc. throughput is not an overkill:** there was some minor debate about throughput targets we 
 should set. 10x seemed a little excess, especially taking into account that the growth was limited by a real-world
-operations. Nevertheless, our stake in designing for an order of magnitude higher throughput paid off: during a spike 
+operations. Nevertheless, our stake in designing for an order of magnitude higher throughput paid off. During a spike 
 of demand due to COVID and operational constraints, the system handled 40x traffic "in the wild" regularly and with 
 unnoticeable customer experience degradation. Failing at that time would mean tremendous financial and reputation
 losses to the company.
 
 **"Time travel":** one of eventsourcing selling points is the ability to restore the system to any prior state - 
-also known as "time travel". Having such an ability sounds quite exciting for debugging and audit - but it is not 
+also known as "time travel." Having such an ability sounds quite exciting for debugging and audit - but it is not 
 that straightforward to achieve. The main question is schema migrations - some approaches to migration destroy
 the "time continuum" and make it impossible to "time travel" beyond a certain point. Moreover, developers will need 
-to build some infrastructure to expose the _ time-traveled_ state alongside the _current_ state - a separate set of 
+to build some infrastructure to expose the _time-traveled_ state alongside the _current_ state - a separate set of 
 endpoints or a dedicated service deployment is necessary. Simply put, "time travel" is not free and impacts other 
 decisions heavily.
 
-**Monitoring:** One trick that helped us a lot was to enrich our _liveness_ probe (is the system running at all), 
-with some _usefulness_ information (is the service doing the right job?). It was mostly a hack - the _liveness_ 
+**Monitoring:** One trick that helped us a lot was to enrich our _liveness_ probe (is the system running?), 
+with some _usefulness_ information (does it do the right job?). It was mostly a hack - the _liveness_ 
 endpoint was already integrated with many monitoring tools and dashboards and was mandatory for all services, 
 while _usefulness_ monitoring was not a thing[^7]. Putting _usefulness_ information into the _liveness_ check, 
 we made alerts report a somewhat higher problem impact than there was, but notify us about the problems much earlier. 
 It was handy during the stabilization phase, shortly after launch - there were cases when certain groups of actors 
-would go down, while the rest of the system (including _liveness_ probe) worked as expected - such cases would
+would go down while the rest of the system (including the _liveness_ probe) worked as expected - such cases would
 be hard to notice otherwise.
 
 [^7]: or at least it was assumed that usefulness === liveness
