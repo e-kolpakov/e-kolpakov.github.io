@@ -1,6 +1,6 @@
-Eventsourcing systems come with a unique set of capabilities but bring some issues/concerns that need to address.
+Eventsourcing systems come with a unique set of capabilities but bring some issues/concerns to address.
 These unique features make evolving eventsourcing systems a very different process compared to the classical, 
-"state-sourced" systems - many sophisticated things become simple, if not trivial (such as audit, system state 
+state-sourced systems - many sophisticated things become simple, if not trivial (such as audit, system state 
 provenance, derived data streams, etc.); but many simple things become much more convoluted (schema evolution, 
 persistence, etc.).
 
