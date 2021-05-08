@@ -2,7 +2,6 @@
 layout: post
 title: Tech Lead - things to do, not to do, and delegate
 tags: [development-processes]
-image_link_base: /assets/img/DRAFT-tech-lead
 ---
 
 So, you now have a mysterious *Tech Lead* role. It might have happened due to a promotion (congrats!),
@@ -31,11 +30,11 @@ and get better at it. A good option is to delegate to a Senior Software Engineer
 to time. Challenges of different natures - could be a complex algorithm to grasp, a complicated piece of code, 
 a controversial technical tradeoff to make, or even "if we should implement this feature at all?" sometimes. In such 
 cases, they will need your help, knowledge, expertise, guidance, and sometimes just decision-making 
-("yes we should because XYZ").
+("yes we should").
 
 **Keep an eye on non-functional aspects** - things such as performance, monitoring, logging, analytics, and so on 
 are often overlooked or even sacrificed in favor of product features and on-time releases. Not paying attention to them 
-will come back and bite your team - in the form of bugs, increased recovery time from failures, lack of data to make 
+will come back and bite your team - in the form of bugs, increased recovery time from failures, lack of data to make
 decisions, etc. Someone has to keep an eye on them - and that someone is likely you[^2].
 
 **Build the most critical parts of the solution** - this one is simple; you've proven to be a strong engineer in 
@@ -52,10 +51,12 @@ do what it advertises, etc.
 
 [^1]: "Everything else" being not only implementation, testing, and stabilization phase, but also maintenance, 
     operability, evolution, etc.
+
 [^2]: I've noticed a correlation between seniority and attention to non-functional aspects. My theory is that the 
     non-functional aspects are taught neither by formal education nor in the online courses/guides - so learning them 
     comes only with practice and exposure. If you're the most experienced person, you probably know the do's and don'ts 
     around non-functional aspects better than anyone else - and hence is best equipped to deal with them.
+
 [^3]: ...in which case you're not a Tech Lead and should not be reading this :smile: - you're a founder and inventor, 
     so go, change the world, we are all rooting for you!
 
@@ -70,7 +71,7 @@ Don't hesitate to propose innovative solutions as well!
 what your team is doing, and what is needed to achieve success. "What is needed" at times includes things outside of 
 your control - for example, changes in other team's codebase, smaller images to improve website performance, etc. 
 In such cases, you own the success criteria and need to make sure the work done by the other team meets them. In an 
-ideal world, the other team will nail it on the first attempt; but chances are you'll need to go through a few 
+ideal world, they will nail it on the first attempt; but chances are you'll need to go through a few 
 iterations before everything is made right. Invest into building trust with the other relevant teams - even if only to 
 make sure they take your honest "this won't do it, we need XYZ" won't be met with negativity.
 
@@ -98,7 +99,7 @@ shoulders. They quite often require a somewhat different skillset, so don't stre
 you're essentially backfilling a position while also doing your work.
 
 **Deal with non-technical aspirations, goals, and problems of your teammates** - engineers are people, and
-people have goals, aspirations, and problems not related to engineering and technology. Supporting those goals and 
+people have aspirations, goals, and problems not related to engineering and technology. Supporting those goals and 
 aspirations is crucial for morale and productivity. Handling this is a job for a leader with a people-oriented 
 skillset (aka Engineering Manager).
 
@@ -115,7 +116,7 @@ In some cases, you might need to fill in these responsibilities to make your tea
 **Prepare and present project plans and updates** - planning, keeping track of progress, and updating 
 stakeholders are essential parts of most (if not all) projects. It is also a very time-consuming one - so you'd want to 
 focus on _making_ progress rather than _reporting_ progress. A Project Manager can help lift the reporting
-workload and let you focus on the actual work, but as usual, if there are no PMs around, you might need to step up and
+workload and let you focus on the actual work, but if there are no PMs around, you might need to step up and
 take this responsibility.
 
 **_Make_ product decisions** - someone sets the direction for the product as a whole. This person should make lots 
