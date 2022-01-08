@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Spreadsheet magic"
-image_link_base: /assets/img/drafts/
+image_link_base: /assets/img/2022-01-08-spreadsheet-magic/
 ---
 I once stumbled upon a quote "if people knew how to use grep, awk, 
 sed, and xargs, half of the applications would never need to be created." I think roughly the same can be said about
@@ -63,7 +63,7 @@ functions, etc.) and focus on the most powerful and complex to use. All cell ref
     and conditional formatting when source data moves. However, adding/removing columns is more robust, so try to 
     use it as much as possible.
 
-## Formulas
+## Functions
 
 ### Sequence
 
