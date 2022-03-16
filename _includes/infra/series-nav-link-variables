@@ -1,0 +1,11 @@
+{% assign next_post_seq_nr = include.series_sequence_nr | plus:1 %}
+{% assign prev_post_seq_nr = include.series_sequence_nr | minus:1 %}
+{% assign series_posts = site.tags[include.series_tag] | sort: 'series_sequence_nr' %}
+{% for post in series_posts %}
+    {% if post.series_sequence_nr == prev_post_seq_nr %}
+        {% assign prev_post=post.url %}
+    {% endif %}
+    {% if post.series_sequence_nr == next_post_seq_nr %}
+        {% assign next_post=post.url %}
+    {% endif %}
+{% endfor %}

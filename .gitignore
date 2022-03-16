@@ -1,0 +1,11 @@
+# IDE
+.idea
+
+_site
+.sass-cache
+.jekyll-metadata
+
+
+.ruby-version
+.hypothesis
+/.jekyll-cache/

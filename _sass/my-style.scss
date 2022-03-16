@@ -1,0 +1,66 @@
+// You can add CSS rules here that will be inlucded in Hydejack's CSS file
+
+// Note: Not automatically used by hydejack; $grey is used in _config.yml as theme_color and accent_color
+$white: rgba(239, 239, 239, 1);
+$light-blue: rgba(191, 206, 239, 1);
+$blue: rgba(64, 83, 109, 1);
+$grey: rgba(68, 68, 68, 1);
+$light-grey: rgba(128, 128, 128, 1);
+$deep-blue: rgba(18, 32, 61, 1);
+$black: rgba(20, 20, 20, 1);
+$min-width-for-inline-images: 540px;
+
+$tiny: 0.5em;
+
+// Hydejack overrides
+.sidebar {
+  a {
+    color: $white;
+  }
+}
+
+.font-active {
+  background-color: $white;
+}
+
+.centered {
+    text-align: center;
+}
+
+.image-with-attribution {
+    & > .image-attribution {
+        font-size: $tiny;
+        color: $light-grey;
+        text-align: center;
+        & .cc_icon {
+            height: 2.5em;
+        }
+    }
+}
+
+.long-code {
+    .highlight {
+        overflow-y: auto;
+        overflow-x: hidden;
+        max-height: 30rem;
+    }
+}
+
+@media (min-width: $min-width-for-inline-images) {
+    .image-with-attribution {
+        &.inline-text-wrap {
+            width: 14rem;
+            margin: 0rem 1rem 1rem 1rem;
+            &.right {
+                float: right;
+            }
+            &.left {
+                float: left;
+            }
+
+            &.wider {
+                width: 20rem;
+            }
+        }
+    }
+}
