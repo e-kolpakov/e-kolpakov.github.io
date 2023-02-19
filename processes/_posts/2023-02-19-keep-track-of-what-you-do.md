@@ -5,7 +5,7 @@ series_tag: performance-tips-2023
 tags: [performance-tips-2023]
 series_sequence_nr: 2
 key_takeaway: "performance-tips/02-keep-track-of-what-you-do.md"
-image_link_base: /assets/img/performance-tips/DRAFT-keep-track-of-what-you-do
+image_link_base: /assets/img/performance-tips/2023-02-19-keep-track-of-what-you-do
 ---
 
 {% include {{page.key_takeaway}} %}
