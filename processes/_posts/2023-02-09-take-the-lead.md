@@ -6,11 +6,9 @@ tags: [performance-tips-2023]
 series_sequence_nr: 1
 key_takeaway: "performance-tips/01-take-the-lead.md"
 ---
-{% include infra/series-nav-link-variables series_tag=page.series_tag series_sequence_nr=page.series_sequence_nr %}
-
-# Idea at a glance
-
 {% include {{page.key_takeaway}} %}
+
+{% include infra/series-nav-link-variables series_tag=page.series_tag series_sequence_nr=page.series_sequence_nr %}
 
 # Series navigation
 
