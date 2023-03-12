@@ -7,10 +7,8 @@ series_sequence_nr: 3
 key_takeaway: "performance-tips/03-highlight-the-best.md"
 image_link_base: /assets/img/performance-tips/2023-03-11-highligh-the-best
 ---
-
-{% include {{page.key_takeaway}} %}
-
 {% include infra/series-nav-link-variables series_tag=page.series_tag series_sequence_nr=page.series_sequence_nr %}
+{% include {{page.key_takeaway}} %}
 
 # Series navigation
 
@@ -20,7 +18,7 @@ image_link_base: /assets/img/performance-tips/2023-03-11-highligh-the-best
 
 # Motivation
 
-[Last time][prev-post] we talked about recording what you do every day. This gives a lot of data on what you are 
+[Last time][previous] we talked about recording what you do every day. This gives a lot of data on what you are 
 doing, but has one disadvantage - it's a lot of data (pun intended), so it is less useful than it could be.
 
 Let's take reviewing pull requests as an example. If you did it frequently and maintained a 
@@ -36,9 +34,6 @@ So, do yourself (and your EM) good and keep track of the most impactful, most aw
 have done. It should be separate from the "everything you do" list we talked about last time - and **much shorter**. 
 The goal is to draw attention to the most important work, not how much work you've done; or, as it is frequently 
 labelled *"quality over quantity"*.
-
-[prev-post]: {{prev_post}}
-[diff-reviews]: /processes/2020-05-07-optimizing-code-reviews/
 
 # Suggestion(s): 
 
@@ -57,5 +52,8 @@ provide more insight, and what you yourself think best represents your impact.
 Keeping it to yourself is also a valid strategy, if you'd want it to be a "private place" and not having to worry 
 about "external expectations".
 
-[^1]: and actually a few more that I'll reveal in the future posts - mentioning them by name won't help, as they are 
-not as self-explanatory as these.
+[diff-reviews]: /processes/2020-05-07-optimizing-code-reviews/
+[^1]: and actually a few more that I'll reveal in the future posts - mentioning them by name won't help, as they are
+    not as self-explanatory as these.
+
+[previous]: {{prev_post}}
